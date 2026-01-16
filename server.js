@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 // PONER TU CLAUDE API KEY AQUÍ
-const CLAUDE_KEY = 'sk-ant-api03-TU_KEY_REAL';
+const CLAUDE_KEY = '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';
 
 app.post('/api/translate', async (req, res) => {
     try {
