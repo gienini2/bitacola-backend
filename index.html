@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitàcola Agent 1009</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2a5298;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .toggle-container {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-container input[type="checkbox"] {
+            width: 50px;
+            height: 26px;
+            position: relative;
+            appearance: none;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-container input[type="checkbox"]:checked {
+            background: #28a745;
+        }
+
+        .toggle-container input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: 0.3s;
+        }
+
+        .toggle-container input[type="checkbox"]:checked::before {
+            left: 27px;
+        }
+
+        .toggle-container label {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2a5298;
+            cursor: pointer;
+        }
+
+        .mic-btn {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .mic-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mic-btn.recording {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .textarea-original {
+            min-height: 80px;
+        }
+
+        .textarea-technical {
+            min-height: 150px;
+            background: #f8f9fa;
+            border-color: #28a745;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-translate {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-add {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-copy {
+            width: 100%;
+            background: #2a5298;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .btn-delete-all {
+            width: 100%;
+            background: #6c757d;
+            color: white;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .status.warning { background: #fff3cd; color: #856404; }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff9800;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+            display: none;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th {
+            background: #2a5298;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            table th, table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚔 Bitàcola Agent 1009</h1>
+        <div class="subtitle">Traductor automàtic a llenguatge tècnic policial</div>
+
+        <div class="toggle-container">
+            <input type="checkbox" id="autoTranslate" checked>
+            <label for="autoTranslate">Traduir automàticament a llenguatge tècnic</label>
+        </div>
+
+        <button class="mic-btn" id="micBtn">
+            <span style="font-size: 40px;">🎤</span>
+            <span id="micText">Dictar Actuació</span>
+        </button>
+
+        <div class="status" id="status"></div>
+
+        <div class="input-group">
+            <label>📝 Text original (el que dius o escrius):</label>
+            <textarea 
+                id="textOriginal" 
+                class="textarea-original"
+                placeholder="Ex: He fet un control a un cotxe que anava molt ràpid..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-clear" onclick="clearAll()">Esborrar</button>
+            <button class="btn btn-translate" id="translateBtn" onclick="translateText()">🤖 Traduir a Tècnic</button>
+        </div>
+
+        <div class="loader" id="loader"></div>
+
+        <div class="input-group" id="technicalGroup" style="display:none;">
+            <label>✅ Versió tècnica policial:</label>
+            <textarea 
+                id="textTechnical" 
+                class="textarea-technical"
+                readonly></textarea>
+        </div>
+
+        <div class="btn-group" style="display:none;" id="addBtnGroup">
+            <button class="btn btn-clear" onclick="editTechnical()">✏️ Editar</button>
+            <button class="btn btn-add" onclick="addRecord()">+ Afegir a Bitàcola</button>
+        </div>
+
+        <button class="btn btn-copy" onclick="copyTable()">📋 Copiar Bitàcola per al DRAG</button>
+        <button class="btn btn-delete-all" onclick="deleteAll()">⏳ Esborrar Tot el Torn</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 70px;">Hora</th>
+                    <th>Actuació (Versió Tècnica)</th>
+                    <th style="width: 50px;">Acció</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="3" class="empty">Cap registre encara. Dicta o escriu la teva primera actuació.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isRecording = false;
+        let records = [];
+
+        // Prompt del sistema para traducción
+        const SYSTEM_PROMPT = `Actúa com un expert en redacció d'informes policials per la Guàrdia Municipal de Catalunya.
+
+TASCA: Converteix el text col·loquial de l'agent en un informe tècnic policial professional.
+
+REGLES OBLIGATÒRIES:
+1. Idioma: SEMPRE en català tècnic-policial
+2. To: Formal, objectiu, fonamentat jurídicament
+3. Vocabulari tècnic: "bipedestació", "incoació d'expedient", "fluxos circulatoris", "presència dissuasiva", "actitud desdenyosa", "perímetre de seguretat"
+4. Verbs: "es va procedir a", "es va observar", "es va identificar", "es va personar"
+5. Hora: Format 24h ("A les XX:XX hores")
+6. Estructura: FETS → ACTUACIÓ → RESULTAT
+7. NO inventis dades que no estiguin al text original
+8. Extensió: Mínim 100 paraules, màxim 300
+
+EXEMPLE:
+Input: "He parat un cotxe que anava molt ràpid per la carretera"
+
+Output: "A les [HORA] hores, durant el servei de patrulla per la via pública, es va observar un vehicle turisme circulant a velocitat aparentment excessiva per la carretera principal del municipi. Es va procedir a la interceptació del vehicle mitjançant senyals lluminoses reglamentàries. El conductor va aturar-se de manera immediata i va mostrar una actitud col·laboradora durant la identificació. Es va informar de la possible infracció normativa i es va tramitar la corresponent diligència. Finalitzada l'actuació, es va continuar amb el servei ordinari de vigilància."
+
+Ara tradueix el següent text:`;
+
+        // Inicializar reconocimiento de voz
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ca-ES';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('textOriginal').value = transcript;
+                showStatus('✅ Transcripció completada', 'success');
+                stopRecording();
+                
+                // Auto-traducir si está activado
+                if (document.getElementById('autoTranslate').checked) {
+                    setTimeout(() => translateText(), 500);
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Error:', event.error);
+                showStatus('❌ Error: ' + event.error, 'error');
+                stopRecording();
+            };
+
+            recognition.onend = function() {
+                stopRecording();
+            };
+        } else {
+            document.getElementById('micBtn').disabled = true;
+            document.getElementById('micText').textContent = 'Veu no disponible';
+        }
+
+        // Botón micrófono
+        document.getElementById('micBtn').addEventListener('click', function() {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                recognition.stop();
+            }
+        });
+
+        function startRecording() {
+            if (!recognition) {
+                showStatus('❌ Reconeixement de veu no disponible', 'error');
+                return;
+            }
+
+            try {
+                recognition.start();
+                isRecording = true;
+                const btn = document.getElementById('micBtn');
+                btn.classList.add('recording');
+                document.getElementById('micText').textContent = 'Gravant...';
+                showStatus('🎤 Escoltant...', 'info');
+            } catch (error) {
+                showStatus('❌ Error al iniciar gravació', 'error');
+            }
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            const btn = document.getElementById('micBtn');
+            btn.classList.remove('recording');
+            document.getElementById('micText').textContent = 'Dictar Actuació';
+        }
+
+async function translateText() {
+    const originalText = document.getElementById('textOriginal').value.trim();
+    
+    if (!originalText) {
+        showStatus('⚠️ Escriu o dicta alguna cosa primer', 'error');
+        return;
+    }
+
+    document.getElementById('loader').classList.add('show');
+    document.getElementById('translateBtn').disabled = true;
+    showStatus('🤖 Traduint amb Claude...', 'info');
+
+    try {
+        // CAMBIAR ESTA URL POR LA QUE TE DIO RENDER
+        const response = await fetch('https://bitacola-backend.onrender.com/api/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: originalText
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            const now = new Date();
+            const hora = now.toLocaleTimeString('ca-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            let technicalText = data.translation.replace(/\[HORA\]/g, hora);
+
+            document.getElementById('textTechnical').value = technicalText;
+            document.getElementById('technicalGroup').style.display = 'block';
+            document.getElementById('addBtnGroup').style.display = 'grid';
+            
+            showStatus('✅ Traducció completada!', 'success');
+        } else {
+            throw new Error(data.error);
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus('❌ Error: ' + error.message, 'error');
+        
+        document.getElementById('textTechnical').value = originalText;
+        document.getElementById('technicalGroup').style.display = 'block';
+        document.getElementById('addBtnGroup').style.display = 'grid';
+        
+    } finally {
+        document.getElementById('loader').classList.remove('show');
+        document.getElementById('translateBtn').disabled = false;
+    }
+}
+        function editTechnical() {
+            const textarea = document.getElementById('textTechnical');
+            textarea.readOnly = !textarea.readOnly;
+            
+            if (!textarea.readOnly) {
+                textarea.focus();
+                showStatus('✏️ Mode edició activat', 'info');
+            }
+        }
+
+        function addRecord() {
+            const technicalText = document.getElementById('textTechnical').value.trim();
+            
+            if (!technicalText) {
+                showStatus('⚠️ No hi ha text tècnic per afegir', 'error');
+                return;
+            }
+
+            const now = new Date();
+            const time = now.toLocaleTimeString('ca-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            records.push({
+                id: Date.now(),
+                time: time,
+                description: technicalText
+            });
+
+            renderTable();
+            clearAll();
+            showStatus('✅ Registre afegit a la bitàcola', 'success');
+        }
+
+        function clearAll() {
+            document.getElementById('textOriginal').value = '';
+            document.getElementById('textTechnical').value = '';
+            document.getElementById('technicalGroup').style.display = 'none';
+            document.getElementById('addBtnGroup').style.display = 'none';
+        }
+
+        function deleteRecord(id) {
+            records = records.filter(r => r.id !== id);
+            renderTable();
+            showStatus('🗑️ Registre eliminat', 'info');
+        }
+
+        function deleteAll() {
+            if (records.length === 0) {
+                showStatus('⚠️ No hi ha registres per esborrar', 'error');
+                return;
+            }
+
+            if (confirm('⚠️ Segur que vols esborrar TOTS els registres del torn?')) {
+                records = [];
+                renderTable();
+                showStatus('🗑️ Tots els registres esborrats', 'info');
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty">Cap registre encara. Dicta o escriu la teva primera actuació.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            records.forEach(record => {
+                html += `
+                    <tr>
+                        <td><strong>${record.time}</strong></td>
+                        <td>${record.description}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteRecord(${record.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        function copyTable() {
+            if (records.length === 0) {
+                showStatus('⚠️ No hi ha registres per copiar', 'error');
+                return;
+            }
+
+            let text = 'HORA\tACTUACIÓ\n';
+            records.forEach(record => {
+                text += `${record.time}\t${record.description}\n`;
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                showStatus('✅ Bitàcola copiada! Enganxa-la al DRAG', 'success');
+            }).catch(err => {
+                showStatus('❌ Error al copiar', 'error');
+            });
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status show ${type}`;
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 4000);
+        }
+
+        // Renderizar tabla inicial
+        renderTable();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
