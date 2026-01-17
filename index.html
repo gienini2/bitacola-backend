@@ -480,14 +480,21 @@ async function translateText() {
 
     try {
         // CAMBIAR ESTA URL POR LA QUE TE DIO RENDER
-        fetch('https://bitacola-backend.onrender.com/api/translate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: originalText
-            })
+        fetch("https://bitacola-backend.onrender.com/api/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text: textoOriginal
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          textarea.value = data.translation;
+        })
+        .catch(err => {
+          console.error(err);
         });
 
         const data = await response.json();
