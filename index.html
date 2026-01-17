@@ -467,13 +467,17 @@ Ara tradueix el següent text:`;
         }
 
 async function translateText() {
-  const originalText =
-    document.getElementById("textOriginal").value.trim();
+  const originalText = document.getElementById("textOriginal").value.trim();
 
   if (!originalText) {
     showStatus("⚠️ Escriu o dicta alguna cosa primer", "error");
     return;
   }
+
+  // Mostrar loader
+  document.getElementById('loader').classList.add('show');
+  document.getElementById('translateBtn').disabled = true;
+  showStatus('🤖 Traduint amb Claude...', 'info');
 
   try {
     const response = await fetch(
@@ -487,17 +491,28 @@ async function translateText() {
 
     const data = await response.json();
 
-    document.getElementById("textTechnical").value =
-      data.translation;
+    // Añadir hora actual
+    const now = new Date();
+    const hora = now.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+    const textWithTime = data.translation.replace(/\[HORA\]/g, hora);
+
+    document.getElementById("textTechnical").value = textWithTime;
+    
+    // ⭐ ESTAS 2 LÍNEAS FALTABAN - MUESTRAN LA CAJA
+    document.getElementById('technicalGroup').style.display = 'block';
+    document.getElementById('addBtnGroup').style.display = 'grid';
 
     showStatus("✅ Traducció completada", "success");
 
   } catch (e) {
     console.error(e);
-    showStatus("❌ Error en la traducció", "error");
+    showStatus("❌ Error en la traducció: " + e.message, "error");
+  } finally {
+    // Ocultar loader
+    document.getElementById('loader').classList.remove('show');
+    document.getElementById('translateBtn').disabled = false;
   }
 }
-      
         function editTechnical() {
             const textarea = document.getElementById('textTechnical');
             textarea.readOnly = !textarea.readOnly;
