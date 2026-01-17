@@ -467,9 +467,9 @@ Ara tradueix el següent text:`;
         }
 
 async function translateText() {
-    const originalText = document.getElementById('textOriginal').value.trim();
+    const textOriginal = document.getElementById('textOriginal').value.trim();
     
-    if (!originalText) {
+    if (!textOriginal) {
         showStatus('⚠️ Escriu o dicta alguna cosa primer', 'error');
         return;
     }
@@ -521,7 +521,7 @@ async function translateText() {
         console.error('Error:', error);
         showStatus('❌ Error: ' + error.message, 'error');
         
-        document.getElementById('textTechnical').value = originalText;
+        document.getElementById('textTechnical').value = textOriginal;
         document.getElementById('technicalGroup').style.display = 'block';
         document.getElementById('addBtnGroup').style.display = 'grid';
         
