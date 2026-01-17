@@ -467,69 +467,48 @@ Ara tradueix el següent text:`;
         }
 
 async function translateText() {
-    const textOriginal = document.getElementById('textOriginal').value.trim();
-    
-    if (!textOriginal) {
-        showStatus('⚠️ Escriu o dicta alguna cosa primer', 'error');
-        return;
+  const originalText =
+    document.getElementById("textOriginal").value.trim();
+
+  if (!originalText) {
+    showStatus("⚠️ Escriu o dicta alguna cosa primer", "error");
+    return;
+  }
+
+  showStatus("🤖 Traduint a llenguatge tècnic...", "info");
+
+  try {
+    const response = await fetch(
+      "https://bitacola-backend.onrender.com/api/translate",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          text: originalText
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error HTTP");
     }
 
-    document.getElementById('loader').classList.add('show');
-    document.getElementById('translateBtn').disabled = true;
-    showStatus('🤖 Traduint amb Claude...', 'info');
+    const data = await response.json();
 
-    try {
-        // CAMBIAR ESTA URL POR LA QUE TE DIO RENDER
-        fetch("https://bitacola-backend.onrender.com/api/translate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            text: textOriginal
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          textarea.value = data.translation;
-        })
-        .catch(err => {
-          console.error(err);
-        });
+    // 👇 AQUÍ ESTÁ LA CLAVE
+    document.getElementById("textTechnical").value =
+      data.translation;
 
-        const data = await response.json();
-        
-        if (data.success) {
-            const now = new Date();
-            const hora = now.toLocaleTimeString('ca-ES', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            let technicalText = data.translation.replace(/\[HORA\]/g, hora);
+    showStatus("✅ Traducció completada", "success");
 
-            document.getElementById('textTechnical').value = technicalText;
-            document.getElementById('technicalGroup').style.display = 'block';
-            document.getElementById('addBtnGroup').style.display = 'grid';
-            
-            showStatus('✅ Traducció completada!', 'success');
-        } else {
-            throw new Error(data.error);
-        }
-        
-    } catch (error) {
-        console.error('Error:', error);
-        showStatus('❌ Error: ' + error.message, 'error');
-        
-        document.getElementById('textTechnical').value = textOriginal;
-        document.getElementById('technicalGroup').style.display = 'block';
-        document.getElementById('addBtnGroup').style.display = 'grid';
-        
-    } finally {
-        document.getElementById('loader').classList.remove('show');
-        document.getElementById('translateBtn').disabled = false;
-    }
-}       
+  } catch (error) {
+    console.error(error);
+    showStatus("❌ Error en la traducció", "error");
+  }
+}
+      
         function editTechnical() {
             const textarea = document.getElementById('textTechnical');
             textarea.readOnly = !textarea.readOnly;
