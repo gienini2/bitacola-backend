@@ -1,70 +1,112 @@
-const express = require('express');
-const cors = require('cors');
+import express from "express";
+import cors from "cors";
+import fetch from "node-fetch";
+
 const app = express();
 
-app.use(cors());
+/* =========================
+   CONFIGURACIÓN BÁSICA
+========================= */
+
+const PORT = process.env.PORT || 10000;
+const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
+
+if (!CLAUDE_API_KEY) {
+  console.error("❌ ERROR: Falta la variable de entorno CLAUDE_API_KEY");
+}
+
+/* =========================
+   MIDDLEWARES
+========================= */
+
 app.use(express.json());
 
-// PONER TU CLAUDE API KEY AQUÍ
-const CLAUDE_KEY = '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';
+app.use(
+  cors({
+    origin: "https://gienini2.github.io",
+    methods: ["POST"],
+    allowedHeaders: ["Content-Type"]
+  })
+);
 
-app.post('/api/translate', async (req, res) => {
-    try {
-        const { text } = req.body;
+/* =========================
+   PROMPT DEL SISTEMA
+========================= */
 
-        const prompt = `Ets un expert en redacció d'informes policials per la Guàrdia Municipal de Catalunya.
+const SYSTEM_PROMPT = `
+Ets un expert en redacció d'informes policials per la Guàrdia Municipal de Catalunya.
 
 TASCA: Converteix aquest text col·loquial en un informe tècnic policial professional en CATALÀ.
 
-REGLES:
-- Llenguatge formal i objectiu
-- Vocabulari tècnic: "bipedestació", "es va procedir a", "es va observar"
-- Començar amb "A les [HORA] hores,"
-- Estructura: FETS → ACTUACIÓ → RESULTAT
-- Extensió: 150-250 paraules
+REGLES OBLIGATÒRIES:
+- Llenguatge formal i objectiu (tercera persona o passiva reflexa)
+- Vocabulari tècnic policial: "bipedestació", "incoació d'expedient", "fluxos circulatoris", "presència dissuasiva", "actitud desdenyosa/de menyspreu", "perímetre de seguretat"
+- Verbs formals: "es va procedir a", "es va observar", "es va identificar", "es va personar"
+- Començar SEMPRE amb: "A les [HORA] hores,"
+- Estructura clara: FETS → ACTUACIÓ → RESULTAT → FONAMENT JURÍDIC (si aplica)
+- Extensió: mínim 150 paraules, màxim 300 paraules
+- NO inventis dades que no estiguin al text original
+- Extensiu i molt detallat, com un informe policial real
 
-TEXT: ${text}
+RESPON NOMÉS AMB LA VERSIÓ TÈCNICA EN CATALÀ, SENSE EXPLICACIONS ADDICIONALS.
+`;
 
-RESPON NOMÉS AMB LA VERSIÓ TÈCNICA.`;
+/* =========================
+   ENDPOINT PRINCIPAL
+========================= */
 
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': CLAUDE_KEY,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 1000,
-                messages: [{
-                    role: 'user',
-                    content: prompt
-                }]
-            })
-        });
+app.post("/api/translate", async (req, res) => {
+  const { text } = req.body;
 
-        const data = await response.json();
-        
-        res.json({ 
-            success: true, 
-            translation: data.content[0].text 
-        });
+  if (!text || typeof text !== "string") {
+    return res.status(400).json({ error: "Text invàlid o buit" });
+  }
 
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error de traducció' 
-        });
+  try {
+    console.log("➡️ Text rebut:", text);
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": CLAUDE_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: SYSTEM_PROMPT + "\n\nTEXT A TRADUIR:\n" + text
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Error Claude:", errorText);
+      return res.status(500).json({ error: "Error en Claude API" });
     }
+
+    const data = await response.json();
+    const output = data.content?.[0]?.text;
+
+    console.log("✅ Traducció correcta");
+
+    res.json({ translation: output });
+
+  } catch (err) {
+    console.error("🔥 ERROR GENERAL:", err);
+    res.status(500).json({ error: "Error intern del servidor" });
+  }
 });
 
-app.get('/', (req, res) => {
-    res.json({ status: 'Backend Bitàcola funcionant OK' });
-});
+/* =========================
+   ARRANQUE
+========================= */
 
-const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Servidor en port ${PORT}`);
+  console.log(`🚀 Backend actiu al port ${PORT}`);
 });
