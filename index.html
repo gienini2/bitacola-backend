@@ -479,16 +479,16 @@ async function translateText() {
     showStatus('🤖 Traduint amb Claude...', 'info');
 
     try {
-        fetch("https://bitacola-claude-backend.onrender.com/api/translate", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ text: textoOriginal })
-})
-.then(res => res.json())
-.then(data => {
-  textarea.value = data.translation;
-});
-);
+        // CAMBIAR ESTA URL POR LA QUE TE DIO RENDER
+        const response = await fetch('https://bitacola-backend.onrender.com/api/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: originalText
+            })
+        });
 
         const data = await response.json();
         
@@ -522,7 +522,7 @@ async function translateText() {
         document.getElementById('loader').classList.remove('show');
         document.getElementById('translateBtn').disabled = false;
     }
-}
+}       
         function editTechnical() {
             const textarea = document.getElementById('textTechnical');
             textarea.readOnly = !textarea.readOnly;
