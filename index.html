@@ -159,7 +159,20 @@
             background: #f8f9fa;
             border-color: #28a745;
         }
+        select {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #e0e0e0;
+          border-radius: 12px;
+          font-size: 15px;
+          font-family: inherit;
+          background: white;
+        }
 
+        select:focus {
+          outline: none;
+          border-color: #2a5298;
+        }
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -309,13 +322,7 @@
     </style>
 </head>
 <body>
-    <div class="input-group">
-      <label>📌 Tipus de redacció:</label>
-      <select id="modeSelect">
-        <option value="bitacola">📝 Parte diari</option>
-        <option value="informe">📄 Informe tipificat</option>
-      </select>
-    </div>
+    
 
     <div class="container">
         <h1>🚔 Bitàcola Agent 1009</h1>
@@ -339,6 +346,13 @@
                 id="textOriginal" 
                 class="textarea-original"
                 placeholder="Ex: He fet un control a un cotxe que anava molt ràpid..."></textarea>
+        </div>
+        <div class="input-group">
+          <label>📌 Tipus de redacció:</label>
+          <select id="modeSelect">
+            <option value="bitacola">📝 Parte diari</option>
+            <option value="informe">📄 Informe tipificat</option>
+          </select>
         </div>
 
         <div class="btn-group">
