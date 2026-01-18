@@ -309,6 +309,14 @@
     </style>
 </head>
 <body>
+    <div class="input-group">
+      <label>📌 Tipus de redacció:</label>
+      <select id="modeSelect">
+        <option value="bitacola">📝 Parte diari</option>
+        <option value="informe">📄 Informe tipificat</option>
+      </select>
+    </div>
+
     <div class="container">
         <h1>🚔 Bitàcola Agent 1009</h1>
         <div class="subtitle">Traductor automàtic a llenguatge tècnic policial</div>
@@ -376,44 +384,6 @@
         let recognition = null;
         let isRecording = false;
         let records = [];
-
-        // Prompt del sistema para traducción
-const SYSTEM_PROMPT = `
-Ets un redactor d'actuacions policials operatives per a la Guàrdia Municipal de Catalunya.
-
-TASCA:
-Transforma el text col·loquial de l'agent en una entrada de bitàcola policial clara, professional i operativa, en CATALÀ.
-
-CRITERIS DE REDACCIÓ:
-- Llenguatge formal i impersonal (tercera persona / passiva reflexa)
-- Estil sintètic, propi de bitàcola de servei
-- Sense floritures ni conclusions innecessàries
-- Redacció natural, no acadèmica
-
-VOCABULARI PREFERENT (no forçar):
-"incoació", "identificació preventiva", "diligències de comprovació",
-"presència policial dissuasiva", "absència d'indicis de criminalitat",
-"restabliment de l'ordre públic"
-
-ESTRUCTURA FLEXIBLE (NO rígida):
-- Context breu
-- Actuació realitzada
-- Resultat o situació observada
-
-REQUISITS FORMALS:
-- Comença SEMPRE amb: "A les [HORA] hores,"
-- Extensió orientativa: 4 a 6 línies (60–100 paraules)
-- NO inventis dades que no constin al text original
-- Si no hi ha incidència, deixa-ho clar sense dramatitzar
-
-EXEMPLE:
-Input: "Estava patrullant i he vist un grup de gent rara al carrer"
-
-Output:
-"A les [HORA] hores, durant el servei de patrullatge preventiu a peu, es va observar la presència d’un grup de persones a la via pública amb actituds atípiques. Es van efectuar diligències d’observació i control preventiu, sense que es detectessin conductes constitutives d’infracció administrativa o penal. L’actuació es va desenvolupar sense incidències, no apreciant-se indicis de criminalitat ni alteracions de l’ordre públic."
-
-Ara redacta la següent actuació:
-`;
 
         // Inicializar reconocimiento de voz
         if ('webkitSpeechRecognition' in window) {
@@ -483,6 +453,7 @@ Ara redacta la següent actuació:
         }
 
 async function translateText() {
+  const mode = document.getElementById("modeSelect").value;
   const originalText = document.getElementById("textOriginal").value.trim();
 
   if (!originalText) {
@@ -496,14 +467,15 @@ async function translateText() {
   showStatus('🤖 Traduint amb Claude...', 'info');
 
   try {
-    const response = await fetch(
-      "https://bitacola-backend.onrender.com/api/translate",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: originalText })
-      }
-    );
+    const response = await fetch("https://bitacola-backend.onrender.com/api/translate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    text: originalText,
+    mode: mode
+  })
+})
+
 
     const data = await response.json();
 
