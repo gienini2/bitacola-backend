@@ -80,7 +80,7 @@ RESPON NOMÉS AMB L'INFORME, SENSE EXPLICACIONS.
 ========================= */
 
 app.post("/api/translate", async (req, res) => {
-  const { text } = req.body;
+  const { text, mode } = req.body;
 
   if (!text || typeof text !== "string") {
     return res.status(400).json({ error: "Text invàlid o buit" });
@@ -88,11 +88,13 @@ app.post("/api/translate", async (req, res) => {
 
   try {
     console.log("➡️ Text rebut:", text);
+   const selectedPrompt =
+  mode === "informe" ? PROMPT_INFORME : PROMPT_BITACOLA;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "-Type": "application/json",
         "x-api-key": CLAUDE_API_KEY,
         "anthropic-version": "2023-06-01"
       },
@@ -102,7 +104,7 @@ app.post("/api/translate", async (req, res) => {
         messages: [
           {
             role: "user",
-            content: SYSTEM_PROMPT + "\n\nTEXT A TRADUIR:\n" + text
+            content: selectedPrompt + "\n\nTEXT DE L'AGENT:\n" + text
           }
         ]
       })
