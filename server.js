@@ -168,6 +168,9 @@ if (!checkAndIncrementUsage(user_id, mode)) {
     });
 
     if (!response.ok) {
+       const err = await response.json();
+  showStatus(`⛔ ${err.error}`, "error");
+  return;
       const errorText = await response.text();
       console.error("❌ Error Claude:", errorText);
       return res.status(500).json({ error: "Error en Claude API" });
