@@ -325,6 +325,16 @@
     
 
     <div class="container">
+        <div class="input-group" id="betaGate">
+          <label>🔑 Codi d’accés Beta</label>
+          <input type="text" id="betaCodeInput" placeholder="Ex: BETA-1009-A">
+          <button class="btn btn-translate" onclick="submitBetaCode()">
+            Activar accés
+          </button>
+    </div>
+        <div id="appContent" style="display:none;">
+
+
         <h1>🚔 Bitàcola Agent 1009</h1>
         <div class="subtitle">Traductor automàtic a llenguatge tècnic policial</div>
 
@@ -393,7 +403,7 @@
             </tbody>
         </table>
     </div>
-
+    </div>
     <script>
          /* ====== IndexedDB (PRIMERO DE TODO) ====== */
 
