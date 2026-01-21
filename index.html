@@ -586,42 +586,52 @@ async function translateText() {
   document.getElementById('translateBtn').disabled = true;
   showStatus('🤖 Traduint amb Claude...', 'info');
     
-  try {
-     const data = await response.json();  
-    const response = await fetch("https://bitacola-backend.onrender.com/api/translate", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    text: originalText,
-    mode: mode,
-    user_id: localStorage.getItem("user_id")
-  })
-})
-
-    
-    if (!response.ok) {
-      showStatus(`⛔ ${data.error}`, "error");
-      return;
+try {
+  const response = await fetch(
+    "https://bitacola-backend.onrender.com/api/translate",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: originalText,
+        mode: mode,
+        user_id: localStorage.getItem("user_id")
+      })
     }
-      
-    // Añadir hora actual
-    const now = new Date();
-    const hora = now.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
-    const textWithTime = data.translation.replace(/\[HORA\]/g, hora);
+  );
 
+  const data = await response.json();
 
-    document.getElementById("textTechnical").value = textWithTime;
-    document.getElementById('technicalGroup').style.display = 'block';
-    document.getElementById('addBtnGroup').style.display = 'grid';
-        saveActuacio({
-          mode: mode,
-          inputRaw: originalText,
-          outputText: textWithTime
-        });
+  if (!response.ok) {
+    showStatus(`⛔ ${data.error}`, "error");
+    return;
+  }
 
-    showStatus("✅ Traducció completada", "success");
+  const now = new Date();
+  const hora = now.toLocaleTimeString("ca-ES", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
-  } 
+  const textWithTime = data.translation.replace(/\[HORA\]/g, hora);
+
+  document.getElementById("textTechnical").value = textWithTime;
+  document.getElementById("technicalGroup").style.display = "block";
+  document.getElementById("addBtnGroup").style.display = "grid";
+
+  saveActuacio({
+    mode: mode,
+    inputRaw: originalText,
+    outputText: textWithTime
+  });
+
+  showStatus("✅ Traducció completada", "success");
+
+} catch (e) {
+  console.error(e);
+  showStatus("❌ Error en la traducció: " + e.message, "error");
+}
+
   catch (e) {
     console.error(e);
     showStatus("❌ Error en la traducció: " + e.message, "error");
