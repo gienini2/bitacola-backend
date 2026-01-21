@@ -575,7 +575,7 @@ function getAllActuacions(callback) {
 async function translateText() {
   const mode = document.getElementById("modeSelect").value;
   const originalText = document.getElementById("textOriginal").value.trim();
-  const data = await response.json();
+ 
   if (!originalText) {
     showStatus("⚠️ Escriu o dicta alguna cosa primer", "error");
     return;
@@ -587,6 +587,7 @@ async function translateText() {
   showStatus('🤖 Traduint amb Claude...', 'info');
     
   try {
+     const data = await response.json();  
     const response = await fetch("https://bitacola-backend.onrender.com/api/translate", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
