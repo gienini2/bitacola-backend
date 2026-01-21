@@ -7,6 +7,15 @@ const betaCodes = {
   "BETA-1009-C": true,
   "BETA-1009-D": true
 };
+const BETA_LIMITS = {
+  bitacola: 100,   // partes diarios por mes
+  informe: 10      // informes tipificados por mes
+};
+const userUsage = {};
+userUsage[user_id] = {
+  bitacola: 12,
+  informe: 3
+};
 
 const app = express();
 
@@ -24,6 +33,21 @@ if (!CLAUDE_API_KEY) {
 /* =========================
    MIDDLEWARES
 ========================= */
+function checkAndIncrementUsage(userId, mode) {
+  if (!userUsage[userId]) {
+    userUsage[userId] = {
+      bitacola: 0,
+      informe: 0
+    };
+  }
+
+  if (userUsage[userId][mode] >= BETA_LIMITS[mode]) {
+    return false;
+  }
+
+  userUsage[userId][mode]++;
+  return true;
+}
 
 app.use(express.json());
 
