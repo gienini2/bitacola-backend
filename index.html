@@ -395,6 +395,49 @@
     </div>
 
     <script>
+         /* ====== IndexedDB (PRIMERO DE TODO) ====== */
+
+  let db = null;
+
+  function initDB() {
+    const request = indexedDB.open("bitacola1009", 1);
+
+    request.onerror = () => {
+      console.error("❌ Error obrint IndexedDB");
+    };
+
+    request.onsuccess = (event) => {
+      db = event.target.result;
+      console.log("✅ IndexedDB llesta");
+    };
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      const store = db.createObjectStore("actuacions", {
+        keyPath: "id"
+      });
+
+      store.createIndex("timestamp", "timestamp", { unique: false });
+      store.createIndex("mode", "mode", { unique: false });
+      store.createIndex("status", "status", { unique: false });
+
+      console.log("📦 ObjectStore creat");
+    };
+  }
+
+  // Inicialització immediata
+  initDB();
+
+  /* ====== RESTA DEL TEU CODI (DESPRÉS) ====== */
+
+  function translateText() {
+    ...
+  }
+
+  function addRecord() {
+    ...
+  }
         let recognition = null;
         let isRecording = false;
         let records = [];
@@ -515,6 +558,35 @@ async function translateText() {
     document.getElementById('translateBtn').disabled = false;
   }
 }
+        function saveActuacio({ mode, inputRaw, outputText }) {
+  if (!db) {
+    console.warn("DB no inicialitzada encara");
+    return;
+  }
+
+  const tx = db.transaction("actuacions", "readwrite");
+  const store = tx.objectStore("actuacions");
+
+  const record = {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    mode: mode,
+    input_raw: inputRaw,
+    output_text: outputText,
+    status: "draft"
+  };
+
+  store.add(record);
+
+  tx.oncomplete = () => {
+    console.log("💾 Actuació guardada localment");
+  };
+
+  tx.onerror = () => {
+    console.error("❌ Error guardant actuació");
+  };
+}
+
         function editTechnical() {
             const textarea = document.getElementById('textTechnical');
             textarea.readOnly = !textarea.readOnly;
