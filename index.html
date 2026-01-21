@@ -432,7 +432,6 @@ async function submitBetaCode() {
     body: JSON.stringify({ code })
   }
 );
-    );
 
     if (!res.ok) {
       throw new Error("Codi no vàlid");
