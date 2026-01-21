@@ -1,6 +1,12 @@
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
+const betaCodes = {
+  "BETA-1009-A": true,
+  "BETA-1009-B": true,
+  "BETA-1009-C": true,
+  "BETA-1009-D": true
+};
 
 const app = express();
 
@@ -78,9 +84,23 @@ RESPON NOMÉS AMB L'INFORME, SENSE EXPLICACIONS.
 /* =========================
    ENDPOINT PRINCIPAL
 ========================= */
+app.post("/api/beta/activate", (req, res) => {
+  const { code } = req.body;
+
+  if (!betaCodes[code]) {
+    return res.status(403).json({ error: "Invalid beta code" });
+  }
+
+  const userId = crypto.randomUUID();
+
+  console.log(`🧪 Beta activada: ${code} → ${userId}`);
+
+  res.json({ user_id: userId });
+});
 
 app.post("/api/translate", async (req, res) => {
-  const { text, mode } = req.body;
+  const { text, mode, user_id } = req.body;
+
 
   if (!text || typeof text !== "string") {
     return res.status(400).json({ error: "Text invàlid o buit" });
