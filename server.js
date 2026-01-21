@@ -134,6 +134,19 @@ app.post("/api/translate", async (req, res) => {
     console.log("➡️ Text rebut:", text);
    const selectedPrompt =
   mode === "informe" ? PROMPT_INFORME : PROMPT_BITACOLA;
+const { text, mode, user_id } = req.body;
+
+if (!user_id) {
+  return res.status(401).json({
+    error: "Usuari no autoritzat"
+  });
+}
+
+if (!checkAndIncrementUsage(user_id, mode)) {
+  return res.status(403).json({
+    error: "Límit d’ús beta assolit per aquest mode"
+  });
+}
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
