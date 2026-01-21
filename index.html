@@ -425,16 +425,13 @@ async function submitBetaCode() {
 
   try {
     const res = await fetch(
-      "https://bitacola-backend.onrender.com/api/beta/activate",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({
-  text: originalText,
-  mode: mode,
-  user_id: localStorage.getItem("user_id")
-})
-}
+  "https://bitacola-backend.onrender.com/api/beta/activate",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code })
+  }
+);
     );
 
     if (!res.ok) {
