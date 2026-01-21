@@ -429,8 +429,12 @@ async function submitBetaCode() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code })
-      }
+       body: JSON.stringify({
+  text: originalText,
+  mode: mode,
+  user_id: localStorage.getItem("user_id")
+})
+}
     );
 
     if (!res.ok) {
