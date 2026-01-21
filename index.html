@@ -553,10 +553,13 @@ async function translateText() {
     const textWithTime = data.translation.replace(/\[HORA\]/g, hora);
 
     document.getElementById("textTechnical").value = textWithTime;
-    
-    // ⭐ ESTAS 2 LÍNEAS FALTABAN - MUESTRAN LA CAJA
     document.getElementById('technicalGroup').style.display = 'block';
     document.getElementById('addBtnGroup').style.display = 'grid';
+        saveActuacio({
+          mode: mode,
+          inputRaw: originalText,
+          outputText: textWithTime
+        });
 
     showStatus("✅ Traducció completada", "success");
 
@@ -569,11 +572,11 @@ async function translateText() {
     document.getElementById('translateBtn').disabled = false;
   }
 }
-        function saveActuacio({ mode, inputRaw, outputText }) {
-  if (!db) {
-    console.warn("DB no inicialitzada encara");
-    return;
-  }
+  function saveActuacio({ mode, inputRaw, outputText }) {
+      if (!db) {
+        console.warn("DB no inicialitzada encara");
+        return;
+      }
 
   const tx = db.transaction("actuacions", "readwrite");
   const store = tx.objectStore("actuacions");
