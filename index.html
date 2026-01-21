@@ -630,12 +630,7 @@ try {
 } catch (e) {
   console.error(e);
   showStatus("❌ Error en la traducció: " + e.message, "error");
-}
-
-  catch (e) {
-    console.error(e);
-    showStatus("❌ Error en la traducció: " + e.message, "error");
-  } 
+} 
   finally {
     // Ocultar loader
     document.getElementById('loader').classList.remove('show');
