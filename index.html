@@ -375,7 +375,9 @@
             <button class="btn btn-add" onclick="addRecord()">+ Afegir a Bitàcola</button>
         </div>
 
-        <button class="btn btn-copy" onclick="copyTable()">📋 Copiar Bitàcola per al DRAG</button>
+        /*<button class="btn btn-copy" onclick="copyTable()">📋 Copiar Bitàcola per al DRAG</button>*/
+        <button class="btn btn-copy" onclick="exportTXT()">📋 Copiar Bitàcola (TXT) </button>
+
         <button class="btn btn-delete-all" onclick="deleteAll()">⏳ Esborrar Tot el Torn</button>
 
         <table>
@@ -430,6 +432,24 @@
   initDB();
 
   /* ====== RESTA DEL TEU CODI (DESPRÉS) ====== */
+function getAllActuacions(callback) {
+  if (!db) {
+    console.warn("DB no inicialitzada");
+    return;
+  }
+
+  const tx = db.transaction("actuacions", "readonly");
+  const store = tx.objectStore("actuacions");
+  const request = store.getAll();
+
+  request.onsuccess = () => {
+    callback(request.result || []);
+  };
+
+  request.onerror = () => {
+    console.error("❌ Error llegint actuacions");
+  };
+}
 
         let recognition = null;
         let isRecording = false;
@@ -682,6 +702,49 @@ async function translateText() {
                 showStatus('❌ Error al copiar', 'error');
             });
         }
+        function generateTXT(actuacions) {
+  if (actuacions.length === 0) {
+    showStatus("⚠️ No hi ha actuacions guardades", "error");
+    return "";
+  }
+
+  let txt = "";
+  txt += "===============================\n";
+  txt += "BITÀCOLA DE SERVEI\n";
+  txt += "===============================\n\n";
+
+  actuacions
+    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    .forEach((a, index) => {
+      const date = new Date(a.timestamp);
+
+      txt += `ACTUACIÓ ${index + 1}\n`;
+      txt += "-------------------------------\n";
+      txt += `Data: ${date.toLocaleDateString("ca-ES")}\n`;
+      txt += `Hora: ${date.toLocaleTimeString("ca-ES", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })}\n`;
+      txt += `Tipus: ${a.mode === "informe" ? "Informe tipificat" : "Parte diari"}\n\n`;
+      txt += `${a.output_text}\n\n`;
+    });
+
+  return txt;
+}
+function exportTXT() {
+  getAllActuacions((actuacions) => {
+    const txt = generateTXT(actuacions);
+    if (!txt) return;
+
+    navigator.clipboard.writeText(txt)
+      .then(() => {
+        showStatus("✅ Bitàcola copiada en format TXT", "success");
+      })
+      .catch(() => {
+        showStatus("❌ Error copiant al portapapeles", "error");
+      });
+  });
+}
 
         function showStatus(message, type) {
             const status = document.getElementById('status');
@@ -694,6 +757,7 @@ async function translateText() {
 
         // Renderizar tabla inicial
         renderTable();
+    
     </script>
 </body>
 </html>
