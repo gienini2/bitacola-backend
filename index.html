@@ -589,7 +589,7 @@ async function translateText() {
   document.getElementById('loader').classList.add('show');
   document.getElementById('translateBtn').disabled = true;
   showStatus('🤖 Traduint amb Claude...', 'info');
-
+    
   try {
     const response = await fetch("https://bitacola-backend.onrender.com/api/translate", {
   method: "POST",
