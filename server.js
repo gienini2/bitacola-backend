@@ -12,10 +12,7 @@ const BETA_LIMITS = {
   informe: 10      // informes tipificados por mes
 };
 const userUsage = {};
-userUsage[user_id] = {
-  bitacola: 12,
-  informe: 3
-};
+
 
 const app = express();
 
@@ -134,7 +131,7 @@ app.post("/api/translate", async (req, res) => {
     console.log("➡️ Text rebut:", text);
    const selectedPrompt =
   mode === "informe" ? PROMPT_INFORME : PROMPT_BITACOLA;
-const { text, mode, user_id } = req.body;
+
 
 if (!user_id) {
   return res.status(401).json({
@@ -151,7 +148,7 @@ if (!checkAndIncrementUsage(user_id, mode)) {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "-Type": "application/json",
+       "Content-Type": "application/json",
         "x-api-key": CLAUDE_API_KEY,
         "anthropic-version": "2023-06-01"
       },
