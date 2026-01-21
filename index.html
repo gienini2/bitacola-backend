@@ -408,6 +408,48 @@
          /* ====== IndexedDB (PRIMERO DE TODO) ====== */
 
   let db = null;
+function checkBetaAccess() {
+  const userId = localStorage.getItem("user_id");
+  if (userId) {
+    document.getElementById("betaGate").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
+  }
+}
+
+async function submitBetaCode() {
+  const code = document.getElementById("betaCodeInput").value.trim();
+  if (!code) {
+    showStatus("⚠️ Introdueix un codi beta", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      "https://bitacola-backend.onrender.com/api/beta/activate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Codi no vàlid");
+    }
+
+    const data = await res.json();
+    localStorage.setItem("user_id", data.user_id);
+
+    showStatus("✅ Accés beta activat", "success");
+    checkBetaAccess();
+
+  } catch (e) {
+    showStatus("❌ Codi beta incorrecte o inactiu", "error");
+  }
+}
+
+// Ejecutar al cargar la página
+checkBetaAccess();
 
   function initDB() {
     const request = indexedDB.open("bitacola1009", 1);
