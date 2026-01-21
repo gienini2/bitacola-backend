@@ -615,10 +615,12 @@ async function translateText() {
 
     showStatus("✅ Traducció completada", "success");
 
-  } catch (e) {
+  } 
+  catch (e) {
     console.error(e);
     showStatus("❌ Error en la traducció: " + e.message, "error");
-  } finally {
+  } 
+  finally {
     // Ocultar loader
     document.getElementById('loader').classList.remove('show');
     document.getElementById('translateBtn').disabled = false;
