@@ -75,6 +75,7 @@ REQUISITS:
 - Comença amb: "A les [HORA] hores,"
 - Extensió: 4 a 6 línies (60–100 paraules)
 - NO inventis dades
+- TERMINOLOGIA: No utilitzis mai la paraula "diligències" per a fets administratius (ITV, assegurances, civisme). Utilitza "acta de denúncia".
 `;
 const PROMPT_INFORME = `
 Ets un redactor d'informes policials per a la Guàrdia Municipal de Catalunya.
@@ -86,6 +87,8 @@ CRITERIS DE REDACCIÓ:
 - Llenguatge formal, tècnic i jurídic
 - Redacció clara i ordenada
 - Sense floritures ni retòrica innecessària
+- ÚS DE "DILIGÈNCIES": Reserva aquest terme EXCLUSIVAMENT per a fets PENALS (delictes, detencions).
+- ÚS DE "ACTES": Per a sancions administratives (ITV, SOA, trànsit, civisme), utilitza sempre "aixecament d'acta de denúncia" o "procediment administratiu". No confonguis mai els dos àmbits.
 
 ESTRUCTURA ORIENTATIVA:
 - FETS: Descripció detallada i cronològica
