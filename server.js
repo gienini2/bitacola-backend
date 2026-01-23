@@ -97,7 +97,7 @@ ESTRUCTURA ORIENTATIVA:
 - RESULTAT: Estat final de l'actuació
 
 REQUISITS FORMALS:
-- Comença amb: "A les [HORA] hores,"
+- Comença amb: "A les [HORA] hores," si el camp text detectes paraules com "patrulla XXX", "agent XXX" indica també aquesta dada 
 - Extensió: 250–400 paraules
 - NO inventis dades ni articles legals concrets
 - La tipificació és ORIENTATIVA, no taxativa
