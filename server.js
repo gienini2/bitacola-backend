@@ -97,7 +97,7 @@ ESTRUCTURA ORIENTATIVA:
 - RESULTAT: Estat final de l'actuació
 
 REQUISITS FORMALS:
-- Comença amb: "A les [HORA] hores," si el camp text detectes paraules com "patrulla XXX", "agent XXX" indica també aquesta dada 
+- Inici del text: Si detectes dades de patrulla (ex: C-5), vehicle (ex: Z-09) o agents (ex: TIP 1234), comença l'informe amb la fórmula: "La patrulla [PATRULLA], degudament uniformada i amb vehicle policial [VEHICLE], composta pels agents [AGENTS], a les [HORA] hores..." > - Si no detectes aquestes dades, comença simplement amb: "A les [HORA] hores,".
 - Extensió: 250–400 paraules
 - NO inventis dades ni articles legals concrets
 - La tipificació és ORIENTATIVA, no taxativa
