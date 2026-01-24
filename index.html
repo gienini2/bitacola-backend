@@ -546,12 +546,24 @@ function getAllActuacions(callback) {
                 recognition.stop();
             }
         });
+async function ensureMicPermission() {
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    return true;
+  } catch (e) {
+    showStatus("❌ Cal permetre accés al micròfon", "error");
+    return false;
+  }
+}
 
-        function startRecording() {
+async function startRecording() {
   if (!('webkitSpeechRecognition' in window)) {
     showStatus('❌ Reconeixement de veu no disponible', 'error');
     return;
   }
+
+  const hasMic = await ensureMicPermission();
+  if (!hasMic) return;
 
   recognition = new webkitSpeechRecognition();
   recognition.lang = 'ca-ES';
@@ -586,9 +598,7 @@ function getAllActuacions(callback) {
     showStatus('❌ No s’ha pogut iniciar el micròfon', 'error');
   }
 }
-
-
-        function stopRecording() {
+       function stopRecording() {
             isRecording = false;
             const btn = document.getElementById('micBtn');
             btn.classList.remove('recording');
