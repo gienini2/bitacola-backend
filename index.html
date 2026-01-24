@@ -548,22 +548,45 @@ function getAllActuacions(callback) {
         });
 
         function startRecording() {
-            if (!recognition) {
-                showStatus('❌ Reconeixement de veu no disponible', 'error');
-                return;
-            }
+  if (!('webkitSpeechRecognition' in window)) {
+    showStatus('❌ Reconeixement de veu no disponible', 'error');
+    return;
+  }
 
-            try {
-                recognition.start();
-                isRecording = true;
-                const btn = document.getElementById('micBtn');
-                btn.classList.add('recording');
-                document.getElementById('micText').textContent = 'Gravant...';
-                showStatus('🎤 Escoltant...', 'info');
-            } catch (error) {
-                showStatus('❌ Error al iniciar gravació', 'error');
-            }
-        }
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'ca-ES';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('textOriginal').value = transcript;
+    showStatus('✅ Transcripció completada', 'success');
+    stopRecording();
+
+    if (document.getElementById('autoTranslate').checked) {
+      setTimeout(() => translateText(), 500);
+    }
+  };
+
+  recognition.onerror = function(event) {
+    showStatus('❌ Error de veu: ' + event.error, 'error');
+    stopRecording();
+  };
+
+  recognition.onend = stopRecording;
+
+  try {
+    recognition.start();
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micText').textContent = 'Gravant...';
+    showStatus('🎤 Escoltant...', 'info');
+  } catch (e) {
+    showStatus('❌ No s’ha pogut iniciar el micròfon', 'error');
+  }
+}
+
 
         function stopRecording() {
             isRecording = false;
