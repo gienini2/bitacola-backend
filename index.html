@@ -465,9 +465,10 @@ checkBetaAccess();
     };
 
     request.onsuccess = (event) => {
-      db = event.target.result;
-      console.log("✅ IndexedDB llesta");
-    };
+  db = event.target.result;
+  console.log("✅ IndexedDB llesta");
+  loadFromDB();
+};
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
@@ -486,6 +487,22 @@ checkBetaAccess();
 
   // Inicialització immediata
   initDB();
+function loadFromDB() {
+  getAllActuacions((actuacions) => {
+    records = actuacions.map(a => {
+      const date = new Date(a.timestamp);
+      return {
+        id: a.id,
+        time: date.toLocaleTimeString('ca-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        description: a.output_text
+      };
+    });
+    renderTable();
+  });
+}
 
   /* ====== RESTA DEL TEU CODI (DESPRÉS) ====== */
 function getAllActuacions(callback) {
