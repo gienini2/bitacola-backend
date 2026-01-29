@@ -344,6 +344,11 @@
                 <label for="autoTranslate">Traduir automàticament a llenguatge tècnic</label>
             </div>
 
+            <div class="toggle-container">
+                <input type="checkbox" id="showTimeInExport" checked>
+                <label for="showTimeInExport">Mostrar hora a la capçalera al exportar</label>
+            </div>
+
             <button class="mic-btn" id="micBtn">
                 <span style="font-size: 40px;">🎤</span>
                 <span id="micText">Dictar Actuació</span>
@@ -878,6 +883,8 @@
                 return;
             }
 
+            const showTime = document.getElementById('showTimeInExport').checked;
+
             let txt = "";
             txt += "===============================\n";
             txt += "BITÀCOLA DE SERVEI\n";
@@ -886,7 +893,12 @@
             records.forEach((record, index) => {
                 txt += `ACTUACIÓ ${records.length - index}\n`;
                 txt += "-------------------------------\n";
-                txt += `Hora: ${record.time}\n`;
+                
+                // Solo mostrar hora si checkbox está activado
+                if (showTime) {
+                    txt += `Hora: ${record.time}\n`;
+                }
+                
                 txt += `Tipus: ${record.mode === "informe" ? "Informe tipificat" : "Parte diari"}\n\n`;
                 txt += `${record.description}\n\n`;
             });
