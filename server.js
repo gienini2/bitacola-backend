@@ -5,7 +5,11 @@ const betaCodes = {
   "BETA-1009-A": true,
   "BETA-1009-B": true,
   "BETA-1009-C": true,
-  "BETA-1009-D": true
+  "BETA-1009-D": true,
+  "BETA-1009-E": true,
+  "BETA-1009-F": true,
+  "BETA-1009-G": true,
+  "BETA-1009-H": true
 };
 const BETA_LIMITS = {
   bitacola: 100,   // partes diarios por mes
