@@ -55,6 +55,24 @@ app.use(
     allowedHeaders: ["Content-Type"]
   })
 );
+// ===== LOG DE USO (telemetría simple) =====
+app.post("/api/log", (req, res) => {
+  try {
+    const { user_id, mode, action, ts } = req.body;
+
+    // Log plano (Render lo guarda y lo puedes ver)
+    console.log(
+      `[USAGE] user=${user_id} mode=${mode} action=${action} ts=${ts}`
+    );
+
+    // Respuesta mínima
+    res.status(200).json({ ok: true });
+
+  } catch (e) {
+    // Nunca romper el flujo del usuario
+    res.status(200).json({ ok: false });
+  }
+});
 
 /* =========================
    PROMPT DEL SISTEMA
