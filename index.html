@@ -333,6 +333,19 @@
                 Activar accés
             </button>
         </div>
+        <div class="container" id="modeSelector" style="display:none;">
+          <h2>Com utilitzaràs Bitàcora avui?</h2>
+
+          <button class="btn btn-add" onclick="selectMode('operatiu')">
+            🚓 Servei operatiu (carrer)
+          </button>
+
+          <br><br>
+
+          <button class="btn btn-translate" onclick="selectMode('oac')">
+            🏢 Administratiu / OAC
+          </button>
+        </div>
 
         <!-- APP PRINCIPAL -->
         <div id="appContent" style="display:none;">
@@ -418,6 +431,30 @@
         let records = [];  // Caché en memoria (se recarga de DB)
         let recognition = null;
         let isRecording = false;
+        // ========== MODOS     ==========
+        function selectMode(mode) {
+          localStorage.setItem("agent_mode", mode);
+          document.getElementById("modeSelector").style.display = "none";
+          document.getElementById("appContent").style.display = "block";
+          applyModeUI();
+        }
+
+        function applyModeUI() {
+          const mode = localStorage.getItem("agent_mode");
+
+          if (mode === "oac") {
+            // Ocultar cosas de servicio
+            document.querySelector("table").style.display = "none";
+            document.getElementById("addBtnGroup").style.display = "none";
+            document.querySelector(".btn-delete-all").style.display = "none";
+
+          } else {
+            // Modo operativo: todo visible
+            document.querySelector("table").style.display = "table";
+            document.getElementById("addBtnGroup").style.display = "grid";
+            document.querySelector(".btn-delete-all").style.display = "block";
+          }
+        }
 
         // ========== INDEXEDDB: INICIALIZACIÓN ==========
         function initDB() {
@@ -565,13 +602,23 @@
 
         // ========== BETA ACCESS ==========
         function checkBetaAccess() {
-            const userId = localStorage.getItem("user_id");
-            if (userId) {
-                document.getElementById("betaGate").style.display = "none";
-                document.getElementById("appContent").style.display = "block";
-                initDB();  // Inicializar DB solo si tiene acceso
-            }
-        }
+          const userId = localStorage.getItem("user_id");
+          const mode = localStorage.getItem("agent_mode");
+
+          if (!userId) return;
+
+          document.getElementById("betaGate").style.display = "none";
+
+          if (!mode) {
+            document.getElementById("modeSelector").style.display = "block";
+            document.getElementById("appContent").style.display = "none";
+          } else {
+            document.getElementById("modeSelector").style.display = "none";
+            document.getElementById("appContent").style.display = "block";
+            applyModeUI();
+          }
+        }    
+
 
         async function submitBetaCode() {
             const code = document.getElementById("betaCodeInput").value.trim();
