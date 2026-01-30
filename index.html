@@ -782,6 +782,7 @@
                         })
                     }
                 );
+                logUsage("translate");
 
                 const data = await response.json();
 
@@ -989,6 +990,20 @@
             setTimeout(() => {
                 status.classList.remove('show');
             }, 4000);
+        }
+        function logUsage(action) {
+          const payload = {
+            user_id: localStorage.getItem("user_id"),
+            mode: localStorage.getItem("agent_mode"),
+            action: action,
+            ts: new Date().toISOString()
+          };
+
+          fetch("https://bitacola-backend.onrender.com/api/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          }).catch(() => {});
         }
 
         // ========== RECARGAR AL VOLVER (pantalla apagada) ==========
