@@ -362,6 +362,10 @@
                 <label for="showTimeInExport">Mostrar hora a la capçalera al exportar</label>
             </div>
 
+            <button class="btn btn-clear" onclick="changeMode()">
+              🔄 Canviar mode
+            </button>
+
             <button class="mic-btn" id="micBtn">
                 <span style="font-size: 40px;">🎤</span>
                 <span id="micText">Dictar Actuació</span>
@@ -460,6 +464,10 @@
             if (table) table.style.display = "table";
             if (deleteAllBtn) deleteAllBtn.style.display = "block";
           }
+        }
+        function changeMode() {
+          localStorage.removeItem("agent_mode");
+          location.reload();
         }
 
         // ========== INDEXEDDB: INICIALIZACIÓN ==========
