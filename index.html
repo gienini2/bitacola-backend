@@ -442,17 +442,23 @@
         function applyModeUI() {
           const mode = localStorage.getItem("agent_mode");
 
-          if (mode === "oac") {
-            // Ocultar cosas de servicio
-            document.querySelector("table").style.display = "none";
-            document.getElementById("addBtnGroup").style.display = "none";
-            document.querySelector(".btn-delete-all").style.display = "none";
+          const micBtn = document.getElementById("micBtn");
+          const addBtnGroup = document.getElementById("addBtnGroup");
+          const table = document.querySelector("table");
+          const deleteAllBtn = document.querySelector(".btn-delete-all");
 
+          if (mode === "oac") {
+            // OAC = redacción puntual
+            if (micBtn) micBtn.style.display = "none";
+            if (addBtnGroup) addBtnGroup.style.display = "none";
+            if (table) table.style.display = "none";
+            if (deleteAllBtn) deleteAllBtn.style.display = "none";
           } else {
-            // Modo operativo: todo visible
-            document.querySelector("table").style.display = "table";
-            document.getElementById("addBtnGroup").style.display = "grid";
-            document.querySelector(".btn-delete-all").style.display = "block";
+            // OPERATIU = servicio completo
+            if (micBtn) micBtn.style.display = "flex";
+            if (addBtnGroup) addBtnGroup.style.display = "grid";
+            if (table) table.style.display = "table";
+            if (deleteAllBtn) deleteAllBtn.style.display = "block";
           }
         }
 
