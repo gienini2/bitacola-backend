@@ -930,30 +930,30 @@ async function checkBetaAccess() {
 
                 document.getElementById("textTechnical").value = textWithTime;
                 // ===== LLAMADA A SHERLOCK =====
-                try {
-                    const enrichResponse = await fetch(
-                        "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
-                        {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                texto_vago: textWithTime
-                            })
-                        }
-                    );
-                
-                    const enrichData = await enrichResponse.json();
-                
-                    if (enrichResponse.ok) {
-                        document.getElementById("textTechnical").value = enrichData.texto_enriquecido;
-                        console.log("Explicació DB:", enrichData.explicacion_db);
-                    } else {
-                        console.error("Error Sherlock:", enrichData);
-                    }
-                
-                } catch (err) {
-                    console.error("Error cridant Sherlock:", err);
-                }
+              //  try {
+              //      const enrichResponse = await fetch(
+               //         "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
+              //          {
+              //              method: "POST",
+              // /             headers: { "Content-Type": "application/json" },
+              //              body: JSON.stringify({
+              //                  texto_vago: textWithTime
+              //              })
+              //          }
+              //      );
+              //  
+              //      const enrichData = await enrichResponse.json();
+              //  
+              //      if (enrichResponse.ok) {
+              //          document.getElementById("textTechnical").value = enrichData.texto_enriquecido;
+              //          console.log("Explicació DB:", enrichData.explicacion_db);
+              //      } else {
+              //          console.error("Error Sherlock:", enrichData);
+              //      }
+              //  
+              //  } catch (err) {
+              //      console.error("Error cridant Sherlock:", err);
+              //  }
                 document.getElementById("technicalGroup").style.display = "block";
                 document.getElementById("addBtnGroup").style.display = "grid";
                 document.getElementById("finalBtnGroup").style.display = "grid";
