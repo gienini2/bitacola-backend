@@ -947,7 +947,38 @@ async function checkBetaAccess() {
                 );
                 
                 const matches = await check.json();
-                console.log("Sherlock:", matches);                
+                const panel = document.getElementById("sherlockPanel");
+                panel.innerHTML = "";
+                panel.style.display = "block";
+                
+                if (matches.vehiculos.length === 0 &&
+                    matches.personas.length === 0 &&
+                    matches.ubicaciones.length === 0) {
+                
+                    panel.innerHTML = "<b>✔ No consten coincidències a la base de dades.</b>";
+                } else {
+                
+                    matches.vehiculos.forEach(v => {
+                        panel.innerHTML += `
+                            <div>
+                                <b>Matrícula:</b> ${v.entidad_original.matricula}<br>
+                                <b>Resultat:</b> ${v.match_type}<br>
+                                <b>Confiança:</b> ${v.confidence}
+                                <hr>
+                            </div>
+                        `;
+                    });
+                
+                    matches.personas.forEach(p => {
+                        panel.innerHTML += `
+                            <div>
+                                <b>DNI:</b> ${p.entidad_original.dni}<br>
+                                <b>Resultat:</b> ${p.match_type}
+                                <hr>
+                            </div>
+                        `;
+                    });
+                }                             
                                 // ===== LLAMADA A SHERLOCK =====
               //  try {
               //      const enrichResponse = await fetch(
