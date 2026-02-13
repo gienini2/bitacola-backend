@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bitàcola Agent 1009</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1b263b;
+            margin-bottom: 5px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #778da9;
+            margin-bottom: 25px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-container {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .header-container::before {
+            content: '1009';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(27, 38, 59, 0.08);
+            z-index: 0;
+            letter-spacing: 8px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .toggle-container {
+            background: linear-gradient(135deg, #e0e1dd 0%, #f8f9fa 100%);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid #dee2e6;
+        }
+
+        .mode-toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #6c757d;
+            border-radius: 8px;
+            background: #6c757d;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .mode-toggle-btn.active {
+            background: #2d6a4f;
+            border-color: #2d6a4f;
+            box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+        }
+
+        .mode-toggle-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .btn-row .btn {
+            flex: 1;
+        }
+
+        .toggle-container input[type="checkbox"] {
+            width: 56px;
+            height: 30px;
+            position: relative;
+            appearance: none;
+            background: #6c757d;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-container input[type="checkbox"]:checked {
+            background: #198754;
+        }
+
+        .toggle-container input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .toggle-container input[type="checkbox"]:checked::before {
+            left: 29px;
+        }
+
+        .toggle-container label {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1b263b;
+            cursor: pointer;
+        }
+
+        .mic-btn {
+            width: 100%;
+            height: 90px;
+            background: linear-gradient(135deg, #c1121f 0%, #9d0208 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(193, 18, 31, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .mic-btn:hover::before {
+            left: 100%;
+        }
+
+        .mic-btn:active {
+            transform: scale(0.97);
+        }
+
+        .mic-btn.recording {
+            background: linear-gradient(135deg, #dc2f02 0%, #d00000 100%);
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 8px 25px rgba(220, 47, 2, 0.5);
+        }
+
+        .mic-icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #415a77;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #415a77;
+            box-shadow: 0 0 0 3px rgba(65, 90, 119, 0.1);
+        }
+
+        .textarea-original {
+            min-height: 90px;
+        }
+
+        .textarea-technical {
+            min-height: 160px;
+            background: #f8f9fa;
+            border-color: #198754;
+            font-family: 'Courier New', monospace;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #415a77;
+            box-shadow: 0 0 0 3px rgba(65, 90, 119, 0.1);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-translate {
+            background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(251, 133, 0, 0.3);
+        }
+
+        .btn-translate:hover:not(:disabled) {
+            background: linear-gradient(135deg, #f77f00 0%, #dc6c00 100%);
+            box-shadow: 0 6px 16px rgba(251, 133, 0, 0.4);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+        }
+
+        .btn-add:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1b4332 0%, #081c15 100%);
+            box-shadow: 0 6px 16px rgba(45, 106, 79, 0.4);
+        }
+
+        .btn-clear {
+            background: #e9ecef;
+            color: #495057;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-clear:hover:not(:disabled) {
+            background: #dee2e6;
+        }
+
+        .btn-copy {
+            width: 100%;
+            background: linear-gradient(135deg, #415a77 0%, #1b263b 100%);
+            color: white;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(65, 90, 119, 0.3);
+        }
+
+        .btn-copy:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1b263b 0%, #0d1b2a 100%);
+            box-shadow: 0 6px 16px rgba(65, 90, 119, 0.4);
+        }
+
+        .btn-delete-all {
+            width: 100%;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-delete-all:hover:not(:disabled) {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+        }
+
+        .status {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success { 
+            background: #d1e7dd; 
+            color: #0f5132; 
+            border-left: 4px solid #198754;
+        }
+        .status.error { 
+            background: #f8d7da; 
+            color: #842029; 
+            border-left: 4px solid #dc3545;
+        }
+        .status.info { 
+            background: #cff4fc; 
+            color: #055160; 
+            border-left: 4px solid #0dcaf0;
+        }
+        .status.warning { 
+            background: #fff3cd; 
+            color: #664d03; 
+            border-left: 4px solid #ffc107;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #fb8500;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 14px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        th {
+            background: linear-gradient(135deg, #1b263b 0%, #0d1b2a 100%);
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 13px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td:first-child {
+            font-weight: 700;
+            color: #1b263b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px !important;
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .delete-btn:hover {
+            background: #bb2d3b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .delete-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive para pantallas pequeñas */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .mic-btn {
+                height: 110px;
+                font-size: 18px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+            }
+
+            .btn {
+                padding: 14px;
+                font-size: 14px;
+            }
+        }
+
+        /* Mejoras para pantallas grandes (escritorio) */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1100px;
+                padding: 45px;
+            }
+
+            table {
+                font-size: 15px;
+            }
+
+            th, td {
+                padding: 18px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <div class="header-content">
+                <h1>Bitàcola de Servei</h1>
+                <p class="subtitle">Registre Policial d'Actuacions</p>
+            </div>
+        </div>
+
+        <button class="mic-btn" id="micBtn" style="display: none;">
+            <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <span id="micText">Mantenir premut per dictar</span>
+        </button>
+
+        <div id="status" class="status"></div>
+        <div id="loader" class="loader"></div>
+
+        <div class="input-group">
+            <label>Tipus de sortida</label>
+            <select id="modeSelect">
+                <option value="parte">Parte Diari</option>
+                <option value="informe">Informe Tipificat DRAG</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Text original (dictat o escrit)</label>
+            <textarea id="textOriginal" class="textarea-original" placeholder="Escriu aquí o utilitza el botó de veu..."></textarea>
+        </div>
+
+        <div class="btn-row">
+            <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleWorkMode()">
+                MODE TREBALL
+            </button>
+            <button class="btn btn-translate" id="translateBtn" onclick="translateText()">
+                ⚡ PROCESSAR AMB IA
+            </button>
+            <button class="btn btn-clear" onclick="clearAll()">
+                ✕ ESBORRAR
+            </button>
+        </div>
+
+        <div class="input-group" id="technicalGroup" style="display: none;">
+            <label>Text tècnic generat</label>
+            <textarea id="textTechnical" class="textarea-technical" readonly></textarea>
+        </div>
+
+        <div class="btn-group" id="addBtnGroup" style="display: none;">
+            <button class="btn btn-clear" onclick="addHeader()">
+                ▤ CAPÇALERA
+            </button>
+            <button class="btn btn-clear" onclick="editTechnical()">
+                ✎ EDITAR
+            </button>
+        </div>
+
+        <div class="btn-group" id="finalBtnGroup" style="display: none;">
+            <button class="btn btn-add" onclick="addRecord()">
+                + AFEGIR A BITÀCOLA
+            </button>
+            <button class="btn btn-clear" onclick="clearAll()">
+                ✕ ESBORRAR
+            </button>
+        </div>
+
+        <h2 style="margin: 30px 0 15px 0; color: #1b263b; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">Registres del Torn</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 12%;">Hora</th>
+                    <th style="width: 80%;">Descripció</th>
+                    <th style="width: 8%; text-align: center;">✕</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="3" class="empty">Cap registre encara. Dicta o escriu la teva primera actuació.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="toggle-container" style="background: #fff3cd; border-color: #ffc107;">
+            <input type="checkbox" id="showTimeInExport">
+            <label for="showTimeInExport">Mostrar hores en exportar</label>
+        </div>
+
+        <button class="btn btn-copy" onclick="exportTXT()">
+            ▣ COPIAR BITÀCOLA COMPLETA
+        </button>
+
+        <button class="btn btn-delete-all" onclick="deleteAll()">
+            ⊗ ESBORRAR TOT EL TORN
+        </button>
+    </div>
+
+    <script>
+        let db;
+        let records = [];
+        let recognition = null;
+        let isRecording = false;
+
+        // ========== INDEXEDDB ==========
+        function initDB() {
+            const request = indexedDB.open('BitacolaDB', 1);
+
+            request.onerror = () => {
+                console.error('❌ Error obrint IndexedDB');
+            };
+
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                console.log('✅ IndexedDB oberta');
+                loadFromDB();
+            };
+
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains('records')) {
+                    db.createObjectStore('records', { keyPath: 'id' });
+                    console.log('📦 ObjectStore "records" creat');
+                }
+            };
+        }
+
+        function saveToDB(record, callback) {
+            if (!db) {
+                callback(false);
+                return;
+            }
+            const transaction = db.transaction(['records'], 'readwrite');
+            const store = transaction.objectStore('records');
+            const request = store.add(record);
+
+            request.onsuccess = () => callback(true);
+            request.onerror = () => callback(false);
+        }
+
+        function loadFromDB() {
+            if (!db) return;
+
+            const transaction = db.transaction(['records'], 'readonly');
+            const store = transaction.objectStore('records');
+            const request = store.getAll();
+
+            request.onsuccess = (event) => {
+                records = event.target.result || [];
+                records.sort((a, b) => b.id - a.id);
+                renderTable();
+                console.log(`📚 ${records.length} registres carregats`);
+            };
+        }
+
+        function deleteFromDB(id, callback) {
+            if (!db) {
+                callback(false);
+                return;
+            }
+            const transaction = db.transaction(['records'], 'readwrite');
+            const store = transaction.objectStore('records');
+            const request = store.delete(id);
+
+            request.onsuccess = () => callback(true);
+            request.onerror = () => callback(false);
+        }
+
+        function clearDB(callback) {
+            if (!db) {
+                callback(false);
+                return;
+            }
+            const transaction = db.transaction(['records'], 'readwrite');
+            const store = transaction.objectStore('records');
+            const request = store.clear();
+
+            request.onsuccess = () => callback(true);
+            request.onerror = () => callback(false);
+        }
+
+        // ========== MODO PATRULLA ==========
+        let isPatrolMode = false;
+
+        function toggleWorkMode() {
+            isPatrolMode = !isPatrolMode;
+            const micBtn = document.getElementById('micBtn');
+            const toggleBtn = document.getElementById('modeToggleBtn');
+            
+            if (isPatrolMode) {
+                micBtn.style.display = 'flex';
+                toggleBtn.classList.add('active');
+                initSpeechRecognition();
+                localStorage.setItem('agent_mode', 'patrol');
+                showStatus('Mode Patrulla activat', 'success');
+            } else {
+                micBtn.style.display = 'none';
+                toggleBtn.classList.remove('active');
+                if (recognition) {
+                    recognition.stop();
+                    recognition = null;
+                }
+                localStorage.setItem('agent_mode', 'office');
+                showStatus('Mode Oficina activat', 'info');
+            }
+        }
+
+        // ========== RECONOCIMIENTO DE VOZ ==========
+        function initSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showStatus('El teu navegador no suporta reconeixement de veu', 'error');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ca-ES';
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript + ' ';
+                }
+                
+                const currentText = document.getElementById('textOriginal').value;
+                document.getElementById('textOriginal').value = currentText + transcript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Error reconeixement:', event.error);
+                if (event.error !== 'no-speech') {
+                    showStatus('Error de reconeixement: ' + event.error, 'error');
+                }
+            };
+
+            recognition.onend = () => {
+                if (isRecording) {
+                    recognition.start();
+                }
+            };
+        }
+
+        document.getElementById('micBtn').addEventListener('mousedown', startRecording);
+        document.getElementById('micBtn').addEventListener('mouseup', stopRecording);
+        document.getElementById('micBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startRecording();
+        });
+        document.getElementById('micBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopRecording();
+        });
+
+        function startRecording() {
+            if (!recognition) return;
+            
+            isRecording = true;
+            recognition.start();
+            document.getElementById('micBtn').classList.add('recording');
+            document.getElementById('micText').textContent = '● GRAVANT...';
+            logUsage("voice_start");
+        }
+
+        function stopRecording() {
+            if (!recognition) return;
+            
+            isRecording = false;
+            recognition.stop();
+            document.getElementById('micBtn').classList.remove('recording');
+            document.getElementById('micText').textContent = 'Mantenir premut per dictar';
+            logUsage("voice_stop");
+        }
+async function checkBetaAccess() {
+  let userId = localStorage.getItem("user_id");
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("user_id", userId);
+  }
+
+  try {
+    const response = await fetch(
+      "https://bitacola-backend.onrender.com/api/check-beta",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.has_access) {
+      document.body.innerHTML = `
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          color: white;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          padding: 20px;
+          text-align: center;
+        ">
+          <div style="
+            background: white;
+            color: #2a5298;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          ">
+            <h1 style="font-size: 48px; margin-bottom: 20px;">⊘</h1>
+            <h2 style="margin-bottom: 15px;">Accés Restringit</h2>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+              Aquesta aplicació està en fase beta privada.<br>
+              El teu ID (<code style="background: #f0f7ff; padding: 2px 8px; border-radius: 4px;">${userId}</code>) no té accés autoritzat.
+            </p>
+            <p style="color: #999; font-size: 14px;">
+              Si creus que hauries de tenir accés, contacta amb l'administrador.
+            </p>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+  } catch (error) {
+    console.error("Error verificant accés:", error);
+  }
+}
+
+        // ========== TRADUCCIÓN IA ==========
+        async function translateText() {
+            const mode = document.getElementById("modeSelect").value;
+            const originalText = document.getElementById("textOriginal").value.trim();
+
+            if (!originalText) {
+                showStatus("Escriu o dicta alguna cosa primer", "error");
+                return;
+            }
+
+            document.getElementById('loader').classList.add('show');
+            document.getElementById('translateBtn').disabled = true;
+            showStatus('Processant amb Claude...', 'info');
+
+            try {
+                const response = await fetch(
+                    "https://bitacola-backend.onrender.com/api/translate",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            text: originalText,
+                            mode: mode,
+                            user_id: localStorage.getItem("user_id")
+                        })
+                    }
+                );
+                logUsage("translate");
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showStatus(`Error: ${data.error}`, "error");
+                    return;
+                }
+
+                const now = new Date();
+                const hora = now.toLocaleTimeString("ca-ES", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                const textWithTime = data.translation.replace(/\[HORA\]/g, hora);
+
+                document.getElementById("textTechnical").value = textWithTime;
+                document.getElementById("technicalGroup").style.display = "block";
+                document.getElementById("addBtnGroup").style.display = "grid";
+                document.getElementById("finalBtnGroup").style.display = "grid";
+
+                showStatus("Traducció completada", "success");
+
+            } catch (e) {
+                console.error(e);
+                showStatus("Error en la traducció: " + e.message, "error");
+            } finally {
+                document.getElementById('loader').classList.remove('show');
+                document.getElementById('translateBtn').disabled = false;
+            }
+        }
+
+        // ========== EDITAR TEXTO TÉCNICO ==========
+        function editTechnical() {
+            const textarea = document.getElementById('textTechnical');
+            textarea.readOnly = !textarea.readOnly;
+
+            if (!textarea.readOnly) {
+                textarea.focus();
+                showStatus('Mode edició activat', 'info');
+            }
+        }
+
+        // ========== AÑADIR ENCABEZADO ==========
+        function addHeader() {
+            const textarea = document.getElementById('textTechnical');
+            const currentText = textarea.value.trim();
+            
+            const now = new Date();
+            const fecha = now.toLocaleDateString('ca-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const hora = now.toLocaleTimeString('ca-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const header = `DATA: ${fecha}\nHORA: ${hora}\n\n${currentText}`;
+            
+            textarea.value = header;
+            textarea.readOnly = false;
+            textarea.focus();
+            showStatus('Capçalera afegida. Pots editar el text ara', 'info');
+        }
+
+        // ========== AÑADIR A BITÁCOLA ==========
+        function addRecord() {
+            const technicalText = document.getElementById('textTechnical').value.trim();
+            const mode = document.getElementById('modeSelect').value;
+
+            if (!technicalText) {
+                showStatus('No hi ha text tècnic per afegir', 'error');
+                return;
+            }
+
+            const now = new Date();
+            const time = now.toLocaleTimeString('ca-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const newRecord = {
+                id: Date.now(),
+                time: time,
+                description: technicalText,
+                mode: mode
+            };
+
+            saveToDB(newRecord, (success) => {
+                if (success) {
+                    records.unshift(newRecord);
+                    renderTable();
+                    clearAll();
+                    showStatus('Registre afegit a la bitàcola', 'success');
+                } else {
+                    showStatus('Error guardant registre', 'error');
+                }
+            });
+        }
+
+        // ========== BORRAR REGISTRO ==========
+        function deleteRecord(id) {
+            if (!confirm('Eliminar aquest registre?')) return;
+
+            deleteFromDB(id, (success) => {
+                if (success) {
+                    records = records.filter(r => r.id !== id);
+                    renderTable();
+                    showStatus('Registre eliminat', 'info');
+                } else {
+                    showStatus('Error eliminant registre', 'error');
+                }
+            });
+        }
+
+        // ========== BORRAR TODO ==========
+        function deleteAll() {
+            if (records.length === 0) {
+                showStatus('No hi ha registres per esborrar', 'error');
+                return;
+            }
+
+            if (!confirm('⚠️ Segur que vols esborrar TOTS els registres del torn?')) return;
+
+            clearDB((success) => {
+                if (success) {
+                    records = [];
+                    renderTable();
+                    showStatus('Tots els registres esborrats', 'info');
+                } else {
+                    showStatus('Error esborrant registres', 'error');
+                }
+            });
+        }
+
+        // ========== RENDERIZAR TABLA ==========
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty">Cap registre encara. Dicta o escriu la teva primera actuació.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            records.forEach(record => {
+                const modeIcon = record.mode === 'informe' ? '■' : '▪';
+                html += `
+                    <tr>
+                        <td><strong>${record.time}</strong></td>
+                        <td>${modeIcon} ${record.description}</td>
+                        <td style="text-align: center;">
+                            <button class="delete-btn" onclick="deleteRecord(${record.id})">✕</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ========== EXPORTAR TXT ==========
+        function exportTXT() {
+            if (records.length === 0) {
+                showStatus("No hi ha actuacions guardades", "error");
+                return;
+            }
+
+            const showTime = document.getElementById('showTimeInExport').checked;
+
+            let txt = "";
+            txt += "===============================\n";
+            txt += "BITÀCOLA DE SERVEI\n";
+            txt += "===============================\n\n";
+
+            records.forEach((record, index) => {
+                txt += `ACTUACIÓ ${records.length - index}\n`;
+                txt += "-------------------------------\n";
+                
+                if (showTime) {
+                    txt += `Hora: ${record.time}\n`;
+                }
+                
+                txt += `Tipus: ${record.mode === "informe" ? "Informe tipificat" : "Parte diari"}\n\n`;
+                txt += `${record.description}\n\n`;
+            });
+
+            navigator.clipboard.writeText(txt)
+                .then(() => {
+                    showStatus("Bitàcola copiada en format TXT", "success");
+                })
+                .catch(() => {
+                    showStatus("Error copiant al portapapeles", "error");
+                });
+        }
+
+        // ========== LIMPIAR FORMULARIO ==========
+        function clearAll() {
+            document.getElementById('textOriginal').value = '';
+            document.getElementById('textTechnical').value = '';
+            document.getElementById('technicalGroup').style.display = 'none';
+            document.getElementById('addBtnGroup').style.display = 'none';
+            document.getElementById('finalBtnGroup').style.display = 'none';
+        }
+
+        // ========== MOSTRAR MENSAJES ==========
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status show ${type}`;
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 4000);
+        }
+
+        function logUsage(action) {
+          const payload = {
+            user_id: localStorage.getItem("user_id"),
+            mode: localStorage.getItem("agent_mode"),
+            action: action,
+            ts: new Date().toISOString()
+          };
+
+          fetch("https://bitacola-backend.onrender.com/api/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          }).catch(() => {});
+        }
+
+        // ========== RECARGAR AL VOLVER ==========
+        window.addEventListener('focus', () => {
+            if (db) {
+                loadFromDB();
+                console.log("🔄 Recàrrega automàtica de DB");
+            }
+        });
+
+        // ========== INICIALIZACIÓN ==========
+        checkBetaAccess();
+        initDB();
+    </script>
+</body>
+</html>
