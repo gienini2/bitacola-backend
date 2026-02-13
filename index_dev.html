@@ -929,7 +929,18 @@ async function checkBetaAccess() {
                 const textWithTime = data.translation.replace(/\[HORA\]/g, hora);
 
                 document.getElementById("textTechnical").value = textWithTime;
-                // ===== LLAMADA A SHERLOCK =====
+                const check = await fetch(
+                  "https://sherlock-backend-flwb.onrender.com/api/v1/check-entities",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ texto: textWithTime })
+                  }
+                );
+                
+                const matches = await check.json();
+                console.log("Sherlock:", matches);                
+                                // ===== LLAMADA A SHERLOCK =====
               //  try {
               //      const enrichResponse = await fetch(
                //         "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
