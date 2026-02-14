@@ -557,6 +557,40 @@
                 padding: 18px 16px;
             }
         }
+     /* Estilos para entidades marcadas */
+        .entity-exact {
+            background: #d1e7dd;
+            border-bottom: 2px solid #198754;
+            padding: 2px 4px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .entity-exact:hover {
+            background: #a3cfbb;
+        }
+        
+        .entity-partial {
+            background: #fff3cd;
+            border-bottom: 2px solid #ffc107;
+            padding: 2px 4px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .entity-partial:hover {
+            background: #ffe69c;
+        }
+        
+        .entity-none {
+            background: #f8d7da;
+            border-bottom: 2px solid #dc3545;
+            padding: 2px 4px;
+            border-radius: 3px;
+            opacity: 0.7;
+        }   
     </style>
 </head>
 <body>
@@ -1018,31 +1052,7 @@ async function checkBetaAccess() {
                         `;
                     });
                 }                             
-                                // ===== LLAMADA A SHERLOCK =====
-              //  try {
-              //      const enrichResponse = await fetch(
-               //         "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
-              //          {
-              //              method: "POST",
-              // /             headers: { "Content-Type": "application/json" },
-              //              body: JSON.stringify({
-              //                  texto_vago: textWithTime
-              //              })
-              //          }
-              //      );
-              //  
-              //      const enrichData = await enrichResponse.json();
-              //  
-              //      if (enrichResponse.ok) {
-              //          document.getElementById("textTechnical").value = enrichData.texto_enriquecido;
-              //          console.log("Explicació DB:", enrichData.explicacion_db);
-              //      } else {
-              //          console.error("Error Sherlock:", enrichData);
-              //      }
-              //  
-              //  } catch (err) {
-              //      console.error("Error cridant Sherlock:", err);
-              //  }
+
                 document.getElementById("technicalGroup").style.display = "block";
                 document.getElementById("addBtnGroup").style.display = "grid";
                 document.getElementById("finalBtnGroup").style.display = "grid";
@@ -1057,7 +1067,269 @@ async function checkBetaAccess() {
                 document.getElementById('translateBtn').disabled = false;
             }
         }
+// ========== PINTAR ANOTACIONES EN TEXTO ==========
+function pintarTextoAnotado(textoOriginal, anotaciones) {
+    if (!anotaciones || anotaciones.length === 0) {
+        return textoOriginal;
+    }
+    
+    // Ordenar por posición DESC para no romper índices
+    const anotacionesOrdenadas = [...anotaciones].sort((a, b) => b.start - a.start);
+    
+    let textoHTML = textoOriginal;
+    
+    for (const ann of anotacionesOrdenadas) {
+        const antes = textoHTML.substring(0, ann.start);
+        const entidad = textoHTML.substring(ann.start, ann.end);
+        const despues = textoHTML.substring(ann.end);
+        
+        // Clase CSS según tipo de match
+        let cssClass = 'entity-none';
+        let icono = '';
+        
+        if (ann.match === 'exact') {
+            cssClass = 'entity-exact';
+            icono = '✓';
+        } else if (ann.match === 'partial') {
+            cssClass = 'entity-partial';
+            icono = '⚠';
+        }
+        
+        // Crear span con data attributes para tooltips
+        textoHTML = `${antes}<span class="${cssClass}" data-id="${ann.id}" data-type="${ann.type}" title="${icono} ${ann.type}">${entidad}</span>${despues}`;
+    }
+    
+    return textoHTML;
+}
 
+// ========== RENDERIZAR PANEL DB ==========
+function renderizarPanelDB(explicaciones) {
+    const panel = document.getElementById("panelDB");
+    panel.innerHTML = "";
+    
+    if (!explicaciones || explicaciones.length === 0) {
+        panel.innerHTML = "<p style='color:#666;'>✔ No consten coincidències a la base de dades.</p>";
+        return;
+    }
+    
+    explicaciones.forEach(exp => {
+        const card = document.createElement("div");
+        card.style.cssText = `
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        `;
+        
+        // Cabecera
+        const riesgoColor = {
+            'ALTO': '#dc3545',
+            'MEDIO': '#ffc107',
+            'BAJO': '#198754'
+        }[exp.indicadores.riesgo] || '#6c757d';
+        
+        let html = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div>
+                    <h3 style="margin:0; color:#1b263b;">${exp.tipo}: ${exp.entity}</h3>
+                    <small style="color:#778da9;">Confiança: ${(exp.confianza * 100).toFixed(0)}%</small>
+                </div>
+                <div style="
+                    background: ${riesgoColor};
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-weight: 700;
+                    font-size: 12px;
+                ">
+                    ${exp.indicadores.riesgo}
+                </div>
+            </div>
+        `;
+        
+        // Datos actuales
+        html += `<div style="background:#f8f9fa; padding:12px; border-radius:6px; margin-bottom:15px;">`;
+        html += `<h4 style="margin:0 0 10px 0; font-size:14px; color:#415a77;">Dades Actuals</h4>`;
+        
+        for (const [key, value] of Object.entries(exp.datos_actuales)) {
+            if (value) {
+                html += `<div style="margin:4px 0;"><strong>${key}:</strong> ${value}</div>`;
+            }
+        }
+        html += `</div>`;
+        
+        // Timeline
+        if (exp.historial && exp.historial.length > 0) {
+            html += `<h4 style="margin:0 0 10px 0; font-size:14px; color:#415a77;">Historial (${exp.historial.length} actuacions)</h4>`;
+            html += `<div style="max-height:200px; overflow-y:auto;">`;
+            
+            exp.historial.forEach((registro, i) => {
+                const fecha = new Date(registro.fecha).toLocaleDateString('ca-ES');
+                
+                html += `
+                    <div style="
+                        padding:10px;
+                        border-left:3px solid #415a77;
+                        margin-left:10px;
+                        margin-bottom:10px;
+                        background:#f8f9fa;
+                    ">
+                        <div style="font-weight:700; color:#1b263b;">${fecha}</div>
+                        <div style="font-size:13px; color:#495057;">${registro.actuacion}</div>
+                        <div style="font-size:12px; color:#6c757d;">${registro.ubicacion || ''}</div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        }
+        
+        // Indicadores
+        html += `<div style="margin-top:15px; padding-top:15px; border-top:1px solid #dee2e6;">`;
+        html += `<small style="color:#6c757d;">`;
+        html += `Total actuacions: ${exp.indicadores.total_actuaciones} | `;
+        if (exp.indicadores.ultima_actuacion_dias !== null) {
+            html += `Última actuació: fa ${exp.indicadores.ultima_actuacion_dias} dies`;
+        }
+        html += `</small>`;
+        html += `</div>`;
+        
+        card.innerHTML = html;
+        panel.appendChild(card);
+    });
+}
+
+// ========== MODIFICAR translateText (REEMPLAZAR LA FUNCIÓN COMPLETA) ==========
+async function translateText() {
+    const mode = document.getElementById("modeSelect").value;
+    const originalText = document.getElementById("textOriginal").value.trim();
+
+    if (!originalText) {
+        showStatus("Escriu o dicta alguna cosa primer", "error");
+        return;
+    }
+
+    document.getElementById('loader').classList.add('show');
+    document.getElementById('translateBtn').disabled = true;
+    showStatus('Processant amb Claude...', 'info');
+
+    try {
+        // PASO 1: Redactar con bitacola-backend
+        const response = await fetch(
+            "https://bitacola-backend.onrender.com/api/translate",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    text: originalText,
+                    mode: mode,
+                    user_id: localStorage.getItem("user_id")
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showStatus(`Error: ${data.error}`, "error");
+            return;
+        }
+
+        const now = new Date();
+        const hora = now.toLocaleTimeString("ca-ES", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        const textoDRAG = data.translation.replace(/\[HORA\]/g, hora);
+
+        // PASO 2: Analizar con Sherlock (extracción + matching + anotación)
+        showStatus('Analitzant amb Sherlock...', 'info');
+        
+        const sherlockResponse = await fetch(
+            "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    texto_vago: textoDRAG
+                })
+            }
+        );
+
+        const sherlockData = await sherlockResponse.json();
+
+        if (!sherlockResponse.ok) {
+            console.error("Error Sherlock:", sherlockData);
+            // Fallback: mostrar texto sin anotar
+            document.getElementById("textTechnical").value = textoDRAG;
+        } else {
+            // PASO 3: Parsear anotaciones
+            const anotaciones = sherlockData.anotaciones || [];
+            
+            // Mostrar texto anotado en área técnica (como HTML)
+            const textoAnotadoHTML = pintarTextoAnotado(textoDRAG, anotaciones);
+            
+            // Crear div temporal para mostrar HTML
+            const divTextoAnotado = document.createElement("div");
+            divTextoAnotado.id = "textoAnotadoViewer";
+            divTextoAnotado.innerHTML = textoAnotadoHTML;
+            divTextoAnotado.style.cssText = `
+                background: #f8f9fa;
+                border: 2px solid #198754;
+                border-radius: 10px;
+                padding: 16px;
+                font-family: 'Courier New', monospace;
+                font-size: 15px;
+                line-height: 1.6;
+                white-space: pre-wrap;
+                margin-bottom: 15px;
+            `;
+            
+            // Reemplazar textarea por div HTML
+            const textareaGroup = document.getElementById("technicalGroup");
+            const oldViewer = document.getElementById("textoAnotadoViewer");
+            if (oldViewer) oldViewer.remove();
+            
+            textareaGroup.insertBefore(divTextoAnotado, document.getElementById("textTechnical"));
+            document.getElementById("textTechnical").style.display = "none";
+            
+            // PASO 4: Generar explicaciones DB
+            showStatus('Consultant base de dades...', 'info');
+            
+            const explicacionesResponse = await fetch(
+                "https://sherlock-backend-flwb.onrender.com/api/v1/explain",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        matches: sherlockData.matches
+                    })
+                }
+            );
+            
+            const explicacionesData = await explicacionesResponse.json();
+            
+            // Renderizar panel DB
+            renderizarPanelDB(explicacionesData.explicaciones);
+        }
+
+        // Mostrar secciones
+        document.getElementById("technicalGroup").style.display = "block";
+        document.getElementById("addBtnGroup").style.display = "grid";
+        document.getElementById("finalBtnGroup").style.display = "grid";
+
+        showStatus("Anàlisi completada", "success");
+
+    } catch (e) {
+        console.error(e);
+        showStatus("Error en l'anàlisi: " + e.message, "error");
+    } finally {
+        document.getElementById('loader').classList.remove('show');
+        document.getElementById('translateBtn').disabled = false;
+    }
+}
         // ========== EDITAR TEXTO TÉCNICO ==========
         function editTechnical() {
             const textarea = document.getElementById('textTechnical');
