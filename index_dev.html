@@ -233,7 +233,18 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
+        button {
+          padding:8px 16px;
+          border:none;
+          background:#eee;
+          cursor:pointer;
+        }
+        
+        .tabActive {
+          background:white;
+          border-bottom:2px solid black;
+          font-weight:bold;
+        }
         textarea, input[type="text"] {
             width: 100%;
             padding: 16px;
@@ -583,11 +594,22 @@
                 <option value="informe">Informe Tipificat DRAG</option>
             </select>
         </div>
-
-        <div class="input-group">
-            <label>Text original (dictat o escrit)</label>
-            <textarea id="textOriginal" class="textarea-original" placeholder="Escriu aquí o utilitza el botó de veu..."></textarea>
+        <div style="display:flex; border-bottom:1px solid #ccc; margin-top:20px;">
+          <button id="tabRedactor" class="tabActive">REDACTOR</button>
+          <button id="tabDB">DB</button>
         </div>
+        
+        <div id="panelRedactor">
+            <div class="input-group">
+                <label>Text original (dictat o escrit)</label>
+                <textarea id="textOriginal" class="textarea-original" placeholder="Escriu aquí o utilitza el botó de veu..."></textarea>
+            </div>
+        </div>
+        
+        <div id="panelDB" style="display:none; padding:10px; background:#f8f8f8;">
+        </div>
+
+        
 
         <div class="btn-row">
             <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleWorkMode()">
@@ -683,7 +705,24 @@
                 }
             };
         }
+const tabRedactor = document.getElementById("tabRedactor");
+const tabDB = document.getElementById("tabDB");
+const panelRedactor = document.getElementById("panelRedactor");
+const panelDB = document.getElementById("panelDB");
 
+tabRedactor.onclick = () => {
+  panelRedactor.style.display = "block";
+  panelDB.style.display = "none";
+  tabRedactor.classList.add("tabActive");
+  tabDB.classList.remove("tabActive");
+};
+
+tabDB.onclick = () => {
+  panelRedactor.style.display = "none";
+  panelDB.style.display = "block";
+  tabDB.classList.add("tabActive");
+  tabRedactor.classList.remove("tabActive");
+};
         function saveToDB(record, callback) {
             if (!db) {
                 callback(false);
@@ -947,7 +986,7 @@ async function checkBetaAccess() {
                 );
                 
                 const matches = await check.json();
-                const panel = document.getElementById("sherlockPanel");
+                const panel = document.getElementById("panelDB");
                 panel.innerHTML = "";
                 panel.style.display = "block";
                 
