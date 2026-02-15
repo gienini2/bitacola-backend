@@ -965,8 +965,112 @@ async function checkBetaAccess() {
   }
 }
 
-        // ========== TRADUCCIÓN IA ==========
+// ========== TRADUCCIÓN IA ==========
+async function translateText() {
+    const mode = document.getElementById("modeSelect").value;
+    const originalText = document.getElementById("textOriginal").value.trim();
 
+    if (!originalText) {
+        showStatus("Escriu o dicta alguna cosa primer", "error");
+        return;
+    }
+
+    document.getElementById('loader').classList.add('show');
+    document.getElementById('translateBtn').disabled = true;
+    showStatus('Processant amb Claude...', 'info');
+
+    try {
+        // PASO 1: Redactar con bitacola-backend
+        const response = await fetch(
+            "https://bitacola-backend.onrender.com/api/translate",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    text: originalText,
+                    mode: mode,
+                    user_id: localStorage.getItem("user_id")
+                })
+            }
+        );
+        logUsage("translate");
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showStatus(`Error: ${data.error}`, "error");
+            return;
+        }
+
+        const now = new Date();
+        const hora = now.toLocaleTimeString("ca-ES", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        const textoDRAG = data.translation.replace(/\[HORA\]/g, hora);
+
+        // Mostrar texto en textarea normal
+        document.getElementById("textTechnical").value = textoDRAG;
+        document.getElementById("textTechnical").style.display = "block";
+
+        // PASO 2: Analizar con Sherlock (extracción + matching + anotación)
+        showStatus('Analitzant amb Sherlock...', 'info');
+        
+        const sherlockResponse = await fetch(
+            "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    texto_vago: textoDRAG
+                })
+            }
+        );
+
+        const sherlockData = await sherlockResponse.json();
+
+        if (!sherlockResponse.ok) {
+            console.error("Error Sherlock:", sherlockData);
+            // Fallback: mostrar mensaje genérico en panel DB
+            const panel = document.getElementById("panelDB");
+            panel.innerHTML = "<p style='color:#666;'>⚠️ Error consultant base de dades.</p>";
+        } else {
+            // PASO 3: Generar explicaciones DB
+            showStatus('Consultant base de dades...', 'info');
+            
+            const explicacionesResponse = await fetch(
+                "https://sherlock-backend-flwb.onrender.com/api/v1/explain",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        matches: sherlockData.matches
+                    })
+                }
+            );
+            
+            const explicacionesData = await explicacionesResponse.json();
+            
+            // Renderizar panel DB
+            renderizarPanelDB(explicacionesData.explicaciones);
+        }
+
+        // Mostrar secciones
+        document.getElementById("technicalGroup").style.display = "block";
+        document.getElementById("addBtnGroup").style.display = "grid";
+        document.getElementById("finalBtnGroup").style.display = "grid";
+
+        showStatus("Anàlisi completada", "success");
+
+    } catch (e) {
+        console.error(e);
+        showStatus("Error en l'anàlisi: " + e.message, "error");
+    } finally {
+        document.getElementById('loader').classList.remove('show');
+        document.getElementById('translateBtn').disabled = false;
+    }
+}
 // ========== PINTAR ANOTACIONES EN TEXTO ==========
 function pintarTextoAnotado(textoOriginal, anotaciones) {
     if (!anotaciones || anotaciones.length === 0) {
@@ -1101,135 +1205,7 @@ function renderizarPanelDB(explicaciones) {
 }
 
 // ========== MODIFICAR translateText (REEMPLAZAR LA FUNCIÓN COMPLETA) ==========
-async function translateText() {
-    const mode = document.getElementById("modeSelect").value;
-    const originalText = document.getElementById("textOriginal").value.trim();
 
-    if (!originalText) {
-        showStatus("Escriu o dicta alguna cosa primer", "error");
-        return;
-    }
-
-    document.getElementById('loader').classList.add('show');
-    document.getElementById('translateBtn').disabled = true;
-    showStatus('Processant amb Claude...', 'info');
-
-    try {
-        // PASO 1: Redactar con bitacola-backend
-        const response = await fetch(
-            "https://bitacola-backend.onrender.com/api/translate",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    text: originalText,
-                    mode: mode,
-                    user_id: localStorage.getItem("user_id")
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            showStatus(`Error: ${data.error}`, "error");
-            return;
-        }
-
-        const now = new Date();
-        const hora = now.toLocaleTimeString("ca-ES", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-        const textoDRAG = data.translation.replace(/\[HORA\]/g, hora);
-
-        // PASO 2: Analizar con Sherlock (extracción + matching + anotación)
-        showStatus('Analitzant amb Sherlock...', 'info');
-        
-        const sherlockResponse = await fetch(
-            "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    texto_vago: textoDRAG
-                })
-            }
-        );
-
-        const sherlockData = await sherlockResponse.json();
-
-        if (!sherlockResponse.ok) {
-            console.error("Error Sherlock:", sherlockData);
-            // Fallback: mostrar texto sin anotar
-            document.getElementById("textTechnical").value = textoDRAG;
-        } else {
-            // PASO 3: Parsear anotaciones
-            const anotaciones = sherlockData.anotaciones || [];
-            
-            // Mostrar texto anotado en área técnica (como HTML)
-            const textoAnotadoHTML = pintarTextoAnotado(textoDRAG, anotaciones);
-            
-            // Crear div temporal para mostrar HTML
-            const divTextoAnotado = document.createElement("div");
-            divTextoAnotado.id = "textoAnotadoViewer";
-            divTextoAnotado.innerHTML = textoAnotadoHTML;
-            divTextoAnotado.style.cssText = `
-                background: #f8f9fa;
-                border: 2px solid #198754;
-                border-radius: 10px;
-                padding: 16px;
-                font-family: 'Courier New', monospace;
-                font-size: 15px;
-                line-height: 1.6;
-                white-space: pre-wrap;
-                margin-bottom: 15px;
-            `;
-            
-            // Reemplazar textarea por div HTML
-            const textareaGroup = document.getElementById("technicalGroup");
-            const oldViewer = document.getElementById("textoAnotadoViewer");
-            if (oldViewer) oldViewer.remove();
-            
-            textareaGroup.insertBefore(divTextoAnotado, document.getElementById("textTechnical"));
-            document.getElementById("textTechnical").style.display = "none";
-            
-            // PASO 4: Generar explicaciones DB
-            showStatus('Consultant base de dades...', 'info');
-            
-            const explicacionesResponse = await fetch(
-                "https://sherlock-backend-flwb.onrender.com/api/v1/explain",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        matches: sherlockData.matches
-                    })
-                }
-            );
-            
-            const explicacionesData = await explicacionesResponse.json();
-            
-            // Renderizar panel DB
-            renderizarPanelDB(explicacionesData.explicaciones);
-        }
-
-        // Mostrar secciones
-        document.getElementById("technicalGroup").style.display = "block";
-        document.getElementById("addBtnGroup").style.display = "grid";
-        document.getElementById("finalBtnGroup").style.display = "grid";
-
-        showStatus("Anàlisi completada", "success");
-
-    } catch (e) {
-        console.error(e);
-        showStatus("Error en l'anàlisi: " + e.message, "error");
-    } finally {
-        document.getElementById('loader').classList.remove('show');
-        document.getElementById('translateBtn').disabled = false;
-    }
-}
         // ========== EDITAR TEXTO TÉCNICO ==========
         function editTechnical() {
             const textarea = document.getElementById('textTechnical');
