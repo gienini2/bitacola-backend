@@ -53,7 +53,14 @@ const LIMITS = {
 ========================= */
 
 function checkUserAccess(userId) {
-  return users[userId] && users[userId].active === true;
+  if (!userId) return false;
+
+  // Validación directa contra betaCodes
+  if (betaCodes[userId]) {
+    return true;
+  }
+
+  return false;
 }
 
 function incrementUsage(userId, mode) {
@@ -98,13 +105,10 @@ app.post("/api/beta/activate", (req, res) => {
 app.post("/api/check-beta", (req, res) => {
   const { user_id } = req.body;
 
-  if (!checkUserAccess(user_id)) {
-    return res.json({ has_access: false });
-  }
+  const hasAccess = checkUserAccess(user_id);
 
-  res.json({ has_access: true });
+  res.json({ has_access: hasAccess });
 });
-
 // Revocar usuario manualmente
 app.post("/api/beta/revoke", (req, res) => {
   const { user_id } = req.body;
@@ -137,10 +141,10 @@ app.post("/api/log", (req, res) => {
 
 app.post("/api/translate", async (req, res) => {
   const { text, mode, user_id } = req.body;
-
-  if (!checkUserAccess(user_id)) {
-    return res.status(401).json({ error: "Usuario no autorizado" });
-  }
+   
+    if (!checkUserAccess(user_id)) {
+     return res.status(401).json({ error: "Usuario no autorizado" });
+   }
 
   if (!incrementUsage(user_id, mode)) {
     return res.status(403).json({ error: "Límite mensual alcanzado" });
