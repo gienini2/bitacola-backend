@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
-import crypto from "crypto";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -15,124 +14,28 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "https://gienini2.github.io",
+    origin: "*", // abierto temporalmente
     methods: ["POST"],
     allowedHeaders: ["Content-Type"]
   })
 );
 
 /* =========================
-   BASE DE DATOS EN MEMORIA
-   (puedes migrar a Mongo luego)
-========================= */
-
-const betaCodes = {
-  "BETA-1009-A": true,
-  "BETA-1009-B": true,
-  "BETA-1009-C": true,
-  "BETA-1009-D": true,
-  "BETA-1009-E": true,
-  "BETA-1009-F": true,
-  "BETA-1009-G": true,
-  "BETA-1009-H": true
-};
-
-// usuarios activos
-const users = {};
-
-// uso mensual
-const usage = {};
-
-const LIMITS = {
-  bitacola: 100,
-  informe: 10
-};
-
-/* =========================
-   UTILIDADES
-========================= */
-
-function checkUserAccess(userId) {
-  if (!userId) return false;
-
-  // Validación directa contra betaCodes
-  if (betaCodes[userId]) {
-    return true;
-  }
-
-  return false;
-}
-
-function incrementUsage(userId, mode) {
-  if (!usage[userId]) {
-    usage[userId] = { bitacola: 0, informe: 0 };
-  }
-
-  if (usage[userId][mode] >= LIMITS[mode]) {
-    return false;
-  }
-
-  usage[userId][mode]++;
-  return true;
-}
-
-/* =========================
-   ENDPOINTS BETA
-========================= */
-
-// Activación con código
-app.post("/api/beta/activate", (req, res) => {
-  const { code } = req.body;
-
-  if (!betaCodes[code]) {
-    return res.status(403).json({ error: "Código beta inválido" });
-  }
-
-  const userId = crypto.randomUUID();
-
-  users[userId] = {
-    active: true,
-    createdAt: new Date().toISOString(),
-    codeUsed: code
-  };
-
-  console.log(`🧪 Nuevo usuario activado: ${userId}`);
-
-  res.json({ user_id: userId });
-});
-
-// Verificar acceso
-app.post("/api/check-beta", (req, res) => {
-  const { user_id } = req.body;
-
-  const hasAccess = checkUserAccess(user_id);
-
-  res.json({ has_access: hasAccess });
-});
-// Revocar usuario manualmente
-app.post("/api/beta/revoke", (req, res) => {
-  const { user_id } = req.body;
-
-  if (users[user_id]) {
-    users[user_id].active = false;
-    console.log(`⛔ Usuario revocado: ${user_id}`);
-  }
-
-  res.json({ ok: true });
-});
-
-/* =========================
-   LOG DE USO
+   LOG SIMPLE
 ========================= */
 
 app.post("/api/log", (req, res) => {
-  const { user_id, action, ts } = req.body;
-
-  console.log(
-    `[LOG] user=${user_id} action=${action} ts=${ts}`
-  );
-
+  console.log("[LOG]", req.body);
   res.json({ ok: true });
+});
+
+/* =========================
+   CHECK-BETA (SI EL FRONTEND LO LLAMA)
+   → SIEMPRE PERMITE ACCESO
+========================= */
+
+app.post("/api/check-beta", (req, res) => {
+  res.json({ has_access: true });
 });
 
 /* =========================
@@ -140,14 +43,10 @@ app.post("/api/log", (req, res) => {
 ========================= */
 
 app.post("/api/translate", async (req, res) => {
-  const { text, mode, user_id } = req.body;
-   
-    if (!checkUserAccess(user_id)) {
-     return res.status(401).json({ error: "Usuario no autorizado" });
-   }
+  const { text, mode } = req.body;
 
-  if (!incrementUsage(user_id, mode)) {
-    return res.status(403).json({ error: "Límite mensual alcanzado" });
+  if (!text || typeof text !== "string") {
+    return res.status(400).json({ error: "Text invàlid o buit" });
   }
 
   try {
