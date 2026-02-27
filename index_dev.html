@@ -624,6 +624,7 @@
         <div style="display:flex; border-bottom:1px solid #ccc; margin-top:20px;">
           <button id="tabRedactor" class="tabActive">REDACTOR</button>
           <button id="tabDB">DB</button>
+          <button id="tabPenal">PENAL</button>
         </div>
         
         <div id="panelRedactor">
@@ -636,7 +637,10 @@
         <div id="panelDB" style="display:none; padding:10px; background:#f8f8f8; min-height:100px;">
           <p style='color:#999; font-style:italic;'>Processa un text primer per veure coincidències amb la base de dades.</p>
         </div>
-
+        
+        <div id="panelPenal" style="display:none; padding:10px; background:#f4f6f9; min-height:100px;">
+          <p style="color:#999;">Processa un text per veure anàlisi penal.</p>
+        </div>
         <div class="btn-row">
             <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleWorkMode()">
                 MODE TREBALL
@@ -737,7 +741,19 @@
         const tabDB = document.getElementById("tabDB");
         const panelRedactor = document.getElementById("panelRedactor");
         const panelDB = document.getElementById("panelDB");
+        const tabPenal = document.getElementById("tabPenal");
+        const panelPenal = document.getElementById("panelPenal");
 
+        tabPenal.onclick = () => {
+          panelRedactor.style.display = "none";
+          panelDB.style.display = "none";
+          panelPenal.style.display = "block";
+        
+          tabRedactor.classList.remove("tabActive");
+          tabDB.classList.remove("tabActive");
+          tabPenal.classList.add("tabActive");
+        };
+        
         tabRedactor.onclick = () => {
           panelRedactor.style.display = "block";
           panelDB.style.display = "none";
@@ -960,7 +976,39 @@
             console.error("Error verificant accés:", error);
           }
         }
-
+        function renderizarPanelPenal(data) {
+        
+          const panel = document.getElementById("panelPenal");
+          panel.innerHTML = "";
+        
+          if (!data.is_penal) {
+            panel.innerHTML = "<p style='color:#198754;'>✔ No es detecta tipificació penal clara.</p>";
+            return;
+          }
+        
+          let html = `
+            <div style="background:white; padding:20px; border-radius:10px; border:2px solid #dee2e6;">
+              <h3 style="margin-bottom:10px;">
+                Mòdul: ${data.modulo}
+              </h3>
+              <small>Confiança router: ${(data.confidence_router * 100).toFixed(0)}%</small>
+              <hr>
+          `;
+        
+          data.resultados.forEach(r => {
+            html += `
+              <div style="margin:10px 0;">
+                <strong>${r.delito}</strong>
+                <div style="color:#6c757d;">
+                  Score: ${(r.score * 100).toFixed(0)}%
+                </div>
+              </div>
+            `;
+          });
+        
+          html += "</div>";
+          panel.innerHTML = html;
+        }
         // ========== RENDERIZAR PANEL DB ==========
         function renderizarPanelDB(explicaciones) {
             const panel = document.getElementById("panelDB");
@@ -1118,7 +1166,22 @@
                         })
                     }
                 );
+                // PASO 4: Analizar penal
+                showStatus('Analitzant penal...', 'info');
+                
+                const penalResponse = await fetch(
+                  "https://tu-backend-penal.onrender.com/api/v1/penal/analyze",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      texto: textoDRAG
+                    })
+                  }
+                );
 
+const penalData = await penalResponse.json();
+renderizarPanelPenal(penalData);
                 const sherlockData = await sherlockResponse.json();
                 console.log("📦 Sherlock data:", sherlockData);
 
