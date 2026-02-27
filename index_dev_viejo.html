@@ -1018,7 +1018,7 @@ async function translateText() {
         showStatus('Analitzant amb Sherlock...', 'info');
         
         const sherlockResponse = await fetch(
-            "https://sherlock-backend-flwb.onrender.com/api/v1/enrich",
+            "https://sherlock-backend.onrender.com/api/v1/enrich",
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1040,7 +1040,7 @@ async function translateText() {
             showStatus('Consultant base de dades...', 'info');
             
             const explicacionesResponse = await fetch(
-                "https://sherlock-backend-flwb.onrender.com/api/v1/explain",
+                "https://sherlock-backend.onrender.com/api/v1/explain",
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
