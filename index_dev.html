@@ -1174,14 +1174,20 @@
                   {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      texto: originalText
-                    })
+                    body: JSON.stringify({ texto: originalText })
                   }
                 );
+                
+                if (!penalResponse.ok) {
+                  const errText = await penalResponse.text();
+                  console.error("❌ Penal backend error:", errText);
+                  showStatus("Error en anàlisi penal", "error");
+                  return;
+                }
+                
+                const penalData = await penalResponse.json();
+                renderizarPanelPenal(penalData);
 
-const penalData = await penalResponse.json();
-renderizarPanelPenal(penalData);
                 const sherlockData = await sherlockResponse.json();
                 console.log("📦 Sherlock data:", sherlockData);
 
