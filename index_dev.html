@@ -113,13 +113,35 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            align-items: center;
+            align-items: stretch;
         }
 
         .btn-row .btn {
             flex: 1;
         }
-
+        mode-toggle-btn {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #6c757d;
+            border-radius: 10px;
+            background: #6c757d;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: normal;
+            text-align: center;
+            min-height: 56px;
+        }
+        
+        button.mode-toggle-btn.active {
+            background: #2d6a4f !important;
+            border-color: #2d6a4f !important;
+            box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3) !important;
+        }
         .toggle-container input[type="checkbox"] {
             width: 56px;
             height: 30px;
