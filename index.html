@@ -550,7 +550,6 @@
 
     <div class="input-group" id="technicalGroup" style="display:none;">
         <label>Text tècnic generat</label>
-        <div id="textTechnicalPreview" style="display:none;padding:16px;border:2px solid #198754;border-radius:10px;background:#f8f9fa;font-family:'Courier New',monospace;font-size:14px;line-height:1.6;white-space:pre-wrap;margin-bottom:8px;"></div>
         <textarea id="textTechnical" class="textarea-technical" readonly></textarea>
     </div>
 
@@ -873,13 +872,7 @@ async function translateText() {
 
         document.getElementById("textTechnical").value = textoDRAG;
 
-        const preview = document.getElementById("textTechnicalPreview");
-        if (data.anotaciones && data.anotaciones.length > 0) {
-            preview.innerHTML = pintarTextoAnotado(textoDRAG, data.anotaciones);
-            preview.style.display = "block";
-        } else {
-            preview.style.display = "none";
-        }
+
 
         if (data.entidades) renderizarPanelDB(data.entidades);
         analizarPenal(originalText);
