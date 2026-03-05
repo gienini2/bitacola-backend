@@ -80,31 +80,59 @@ app.post("/api/translate", async (req, res) => {
     return res.status(403).json({ error: "Límit d'ús beta assolit per aquest mode" });
   }
 
-  try {
-    const response = await fetch(`${SHERLOCK_URL}/api/v1/process`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({
-        texto:    text.trim(),
-        mode:     mode,
-        agent_id: null,
-      }),
-    });
+  // Retry automàtic si Sherlock retorna 429 (spin-down de Render)
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 4000; // ms entre reintents
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("❌ Sherlock error:", err);
-      return res.status(502).json({ error: "Error en el servei d'anàlisi" });
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  let lastErr = null;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(`${SHERLOCK_URL}/api/v1/process`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          texto:    text.trim(),
+          mode:     mode,
+          agent_id: null,
+        }),
+        // Timeout de 55s (Render free té 60s hard limit)
+        signal: AbortSignal.timeout(55000),
+      });
+
+      if (response.status === 429) {
+        const waitMsg = `Sherlock ocupat (intent ${attempt}/${MAX_RETRIES}), esperant ${RETRY_DELAY/1000}s...`;
+        console.warn("⏳", waitMsg);
+        if (attempt < MAX_RETRIES) {
+          await sleep(RETRY_DELAY);
+          continue;
+        }
+        return res.status(503).json({ error: "Servei temporalment sobrecarregat, torna a intentar-ho en uns segons." });
+      }
+
+      if (!response.ok) {
+        const err = await response.text();
+        console.error("❌ Sherlock error:", err);
+        return res.status(502).json({ error: "Error en el servei d'anàlisi" });
+      }
+
+      const data = await response.json();
+      console.log(`✅ Processat [mode=${mode}, user=${user_id}, ms=${data.ms}, intent=${attempt}]`);
+      return res.json(data);
+
+    } catch (err) {
+      lastErr = err;
+      if (err.name === "TimeoutError") {
+        console.error(`⏱ Timeout Sherlock (intent ${attempt})`);
+        if (attempt < MAX_RETRIES) { await sleep(2000); continue; }
+        return res.status(504).json({ error: "El servei tarda massa a respondre, torna a intentar-ho." });
+      }
+      console.error("🔥 Error general:", err.message);
+      if (attempt < MAX_RETRIES) { await sleep(2000); continue; }
     }
-
-    const data = await response.json();
-    console.log(`✅ Processat [mode=${mode}, user=${user_id}, ms=${data.ms}]`);
-    res.json(data);
-
-  } catch (err) {
-    console.error("🔥 Error general:", err);
-    res.status(500).json({ error: "Error intern del servidor" });
   }
+  res.status(500).json({ error: "Error intern del servidor després de múltiples intents." });
 });
 
 // ============================================================================
