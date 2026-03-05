@@ -882,7 +882,7 @@ async function translateText() {
         }
 
         if (data.entidades) renderizarPanelDB(data.entidades);
-        analizarPenal(textOriginal);
+        analizarPenal(originalText);
 
         document.getElementById("technicalGroup").style.display = "block";
         document.getElementById("addBtnGroup").style.display    = "grid";
@@ -975,7 +975,7 @@ function renderizarPanelDB(entidades) {
 // ============================================================================
 // PANEL PENAL
 // ============================================================================
-async function analizarPenal(textOriginal) {
+async function analizarPenal(textoOriginal) {
 
     const response = await fetch(
         "https://penal-backend.onrender.com/api/v1/penal/analyze",
@@ -988,8 +988,10 @@ async function analizarPenal(textOriginal) {
         }
     );
 
-}
+    const penal = await response.json();
 
+    renderizarPanelPenal(penal);
+}
 function renderizarPanelPenal(penal) {
     const panel = document.getElementById("panelPenal");
     if (!panel) return;
