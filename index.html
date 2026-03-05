@@ -873,16 +873,9 @@ async function translateText() {
 
         document.getElementById("textTechnical").value = textoDRAG;
 
-        const preview = document.getElementById("textTechnicalPreview");
-        if (data.anotaciones && data.anotaciones.length > 0) {
-            preview.innerHTML = pintarTextoAnotado(textoDRAG, data.anotaciones);
-            preview.style.display = "block";
-        } else {
-            preview.style.display = "none";
-        }
-
+        document.getElementById("textTechnicalPreview").style.display = "none";
         if (data.entidades) renderizarPanelDB(data.entidades);
-        analizarPenal(textOriginal);
+        analizarPenal(originalText);
 
         document.getElementById("technicalGroup").style.display = "block";
         document.getElementById("addBtnGroup").style.display    = "grid";
