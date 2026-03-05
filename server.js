@@ -133,7 +133,7 @@ app.post("/api/translate", async (req, res) => {
         body:    JSON.stringify({
           texto:    text.trim(),
           mode:     mode,
-          agent_id: session.username,
+          agent_id: 1009,
         }),
         signal: AbortSignal.timeout(55_000),
       });
