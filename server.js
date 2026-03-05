@@ -22,30 +22,6 @@ const PORT = process.env.PORT || 10000;
 
 const SHERLOCK_URL = process.env.SHERLOCK_URL
   || "https://sherlock-backend-flwb.onrender.com";
-// En server.js, después de las importaciones, añade:
-
-// ============================================================================
-// SISTEMA BETA - CÓDIGOS BETA-1009-A...H (AÑADIR AQUÍ)
-// ============================================================================
-
-const BETA_CODES = new Set([
-  'BETA-1009-A', 'BETA-1009-B', 'BETA-1009-C', 'BETA-1009-D',
-  'BETA-1009-E', 'BETA-1009-F', 'BETA-1009-G', 'BETA-1009-H'
-]);
-
-const userToBetaCode = new Map();
-const betaUsage = new Map();
-
-// Inicializar límites
-BETA_CODES.forEach(code => {
-  betaUsage.set(code, {
-    parte: 0, informe: 0,
-    maxParte: 100, maxInforme: 10,
-    lastReset: new Date().toISOString()
-  });
-});
-
-// Y luego elimina la línea 56 con el import
 app.use(express.json());
 app.use(cors({
   origin: [
