@@ -30,8 +30,3 @@ BETA_CODES.forEach(code => {
     lastReset: new Date().toISOString()
   });
 });
-module.exports = {
-  BETA_CODES,
-  userToBetaCode,
-  betaUsage
-};
