@@ -975,20 +975,19 @@ function renderizarPanelDB(entidades) {
 // ============================================================================
 // PANEL PENAL
 // ============================================================================
-async function analizarPenal(textoDRAG) {
-    const panel = document.getElementById("panelPenal");
-    if (!panel) return;
-    panel.innerHTML = "<p style='color:#888;padding:10px;'>⏳ Analitzant tipificació penal...</p>";
-    try {
-        const r = await fetch("https://penal-backend.onrender.com/api/v1/penal/analyze", {
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({ texto: textoDRAG }),
-        });
-        if (!r.ok) { panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ Error en el servei penal.</p>"; return; }
-        renderizarPanelPenal(await r.json());
-    } catch (e) {
-        panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ No s'ha pogut connectar amb el tipificador penal.</p>";
-    }
+async function analizarPenal(textoOriginal) {
+
+    const response = await fetch(
+        "https://penal-backend.onrender.com/api/v1/penal/analyze",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                texto_coloquial: textoOriginal
+            })
+        }
+    );
+
 }
 
 function renderizarPanelPenal(penal) {
