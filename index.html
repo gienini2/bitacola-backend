@@ -882,7 +882,7 @@ async function translateText() {
         }
 
         if (data.entidades) renderizarPanelDB(data.entidades);
-        analizarPenal(textoDRAG);
+        analizarPenal(textOriginal);
 
         document.getElementById("technicalGroup").style.display = "block";
         document.getElementById("addBtnGroup").style.display    = "grid";
@@ -975,7 +975,7 @@ function renderizarPanelDB(entidades) {
 // ============================================================================
 // PANEL PENAL
 // ============================================================================
-async function analizarPenal(textoOriginal) {
+async function analizarPenal(textOriginal) {
 
     const response = await fetch(
         "https://penal-backend.onrender.com/api/v1/penal/analyze",
