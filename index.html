@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bitàcola Agent 1009</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ===== PANTALLA LOGIN ===== */
+        #loginScreen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-card {
+            background: white;
+            padding: 45px 40px;
+            border-radius: 20px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .login-badge {
+            width: 70px; height: 70px;
+            background: linear-gradient(135deg, #1b263b, #415a77);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .login-card h2 {
+            color: #1b263b;
+            margin-bottom: 6px;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-card .subtitle {
+            color: #778da9;
+            font-size: 12px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .login-card label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #415a77;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-card input[type="text"] {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .login-card input[type="text"]:focus {
+            outline: none;
+            border-color: #415a77;
+            box-shadow: 0 0 0 3px rgba(65,90,119,0.15);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1b263b, #415a77);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn-login:hover   { opacity: 0.9; }
+        .btn-login:active  { transform: scale(0.98); }
+        .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #loginError {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 12px;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 8px;
+            display: none;
+        }
+
+        /* ===== APP PRINCIPAL ===== */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+        }
+
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #415a77;
+            font-weight: 600;
+        }
+
+        .user-bar button {
+            background: none;
+            border: 1px solid #adb5bd;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-bar button:hover { background: #dee2e6; }
+
+        h1 {
+            text-align: center;
+            color: #1b263b;
+            margin-bottom: 5px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #778da9;
+            margin-bottom: 25px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-container {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .header-container::before {
+            content: '1009';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(27, 38, 59, 0.08);
+            z-index: 0;
+            letter-spacing: 8px;
+        }
+
+        .header-content { position: relative; z-index: 1; }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            background: #e9ecef;
+            color: #6c757d;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #1b263b;
+            border-color: #dee2e6;
+            border-bottom-color: white;
+        }
+
+        .tab-btn:hover:not(.active) { background: #dee2e6; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* BOTONS */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .mode-toggle-btn {
+            padding: 10px 16px;
+            border: 2px solid #6c757d;
+            border-radius: 8px;
+            background: #6c757d;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .mode-toggle-btn.active { background: #2d6a4f; border-color: #2d6a4f; }
+
+        .mic-btn {
+            width: 100%;
+            height: 90px;
+            background: linear-gradient(135deg, #c1121f, #9d0208);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(193,18,31,0.4);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mic-btn.recording {
+            background: linear-gradient(135deg, #dc2f02, #d00000);
+            animation: pulse 1.5s infinite;
+        }
+
+        .mic-icon { width: 24px; height: 24px; fill: white; }
+
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.8} }
+
+        .input-group { margin-bottom: 18px; }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #415a77;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #415a77;
+            box-shadow: 0 0 0 3px rgba(65,90,119,0.1);
+        }
+
+        select { resize: none; cursor: pointer; background: white; }
+
+        .textarea-original  { min-height: 90px; }
+        .textarea-technical {
+            min-height: 160px;
+            background: #f8f9fa;
+            border-color: #198754;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:active   { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-translate  { background: linear-gradient(135deg,#fb8500,#f77f00); color:white; box-shadow:0 4px 12px rgba(251,133,0,.3); }
+        .btn-add        { background: linear-gradient(135deg,#2d6a4f,#1b4332); color:white; box-shadow:0 4px 12px rgba(45,106,79,.3); }
+        .btn-clear      { background: #e9ecef; color: #495057; }
+        .btn-copy       { width:100%; background:linear-gradient(135deg,#415a77,#1b263b); color:white; margin-bottom:12px; }
+        .btn-delete-all { width:100%; background:linear-gradient(135deg,#6c757d,#495057); color:white; }
+
+        .status {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.show    { display: block; }
+        .status.success { background:#d1e7dd; color:#0f5132; border-left:4px solid #198754; }
+        .status.error   { background:#f8d7da; color:#842029; border-left:4px solid #dc3545; }
+        .status.info    { background:#cff4fc; color:#055160; border-left:4px solid #0dcaf0; }
+        .status.warning { background:#fff3cd; color:#664d03; border-left:4px solid #ffc107; }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #fb8500;
+            border-radius: 50%;
+            width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .loader.show { display: block; }
+
+        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 14px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+        th {
+            background: linear-gradient(135deg,#1b263b,#0d1b2a);
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td { padding:16px 12px; border-bottom:1px solid #e9ecef; font-size:14px; line-height:1.6; color:#495057; }
+        tr:hover { background: #f8f9fa; }
+        tr:last-child td { border-bottom: none; }
+        td:first-child { font-weight:700; color:#1b263b; }
+
+        .empty { text-align:center; padding:40px 20px!important; color:#adb5bd; font-style:italic; }
+
+        .delete-btn {
+            background: #dc3545; border: none; color: white;
+            padding: 6px 10px; border-radius: 6px; cursor: pointer;
+            font-size: 14px; display: block; margin: 0 auto;
+        }
+        .delete-btn:hover { background: #bb2d3b; }
+
+        .toggle-container {
+            background: linear-gradient(135deg,#fff3cd,#fef9e7);
+            padding: 18px; border-radius: 12px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 15px; border: 2px solid #ffc107;
+        }
+
+        .toggle-container input[type="checkbox"] {
+            width: 56px; height: 30px;
+            appearance: none; background: #6c757d;
+            border-radius: 15px; cursor: pointer; transition: 0.3s; position: relative;
+        }
+
+        .toggle-container input[type="checkbox"]:checked { background: #198754; }
+
+        .toggle-container input[type="checkbox"]::before {
+            content: ''; position: absolute;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: white; top: 3px; left: 3px;
+            transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,.3);
+        }
+
+        .toggle-container input[type="checkbox"]:checked::before { left: 29px; }
+        .toggle-container label { flex:1; font-size:15px; font-weight:600; color:#1b263b; cursor:pointer; }
+
+        .entity-exact   { background:#cce5ff; border-bottom:2px solid #0066cc; padding:1px 3px; border-radius:2px; cursor:pointer; }
+        .entity-partial { background:#fff3cd; border-bottom:2px solid #e6a817; padding:1px 3px; border-radius:2px; cursor:pointer; }
+
+        #panelPenal, #panelDB { padding:10px; min-height:100px; }
+
+        @media (max-width:600px) {
+            body { padding: 10px; }
+            .container { padding:20px; border-radius:12px; }
+            .mic-btn { height:110px; font-size:18px; }
+            table { font-size:13px; }
+            th,td { padding:12px 8px; }
+            .btn { padding:14px; font-size:14px; }
+        }
+
+        @media (min-width:1024px) {
+            .container { max-width:1100px; padding:45px; }
+            th,td { padding:18px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== PANTALLA LOGIN ===== -->
+<div id="loginScreen">
+    <div class="login-card">
+        <div class="login-badge">🛡</div>
+        <h2>Bitàcola 1009</h2>
+        <p class="subtitle">Sistema Policial d'Actuacions</p>
+        <label for="usernameInput">Nom d'usuari</label>
+        <input type="text" id="usernameInput" placeholder="Introdueix el teu usuari"
+               autocomplete="username" autocapitalize="none"
+               onkeydown="if(event.key==='Enter') doLogin()">
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">ACCEDIR</button>
+        <div id="loginError"></div>
+    </div>
+</div>
+
+<!-- ===== APP PRINCIPAL ===== -->
+<div class="container">
+
+    <!-- Barra d'usuari -->
+    <div class="user-bar">
+        <span>👤 <strong id="displayNameLabel">—</strong></span>
+        <button onclick="doLogout()">Tancar sessió</button>
+    </div>
+
+    <div class="header-container">
+        <div class="header-content">
+            <h1>Bitàcola de Servei</h1>
+            <p class="subtitle">Registre Policial d'Actuacions</p>
+        </div>
+    </div>
+
+    <button class="mic-btn" id="micBtn" style="display:none;">
+        <svg class="mic-icon" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+        <span id="micText">Mantenir premut per dictar</span>
+    </button>
+
+    <div id="status" class="status"></div>
+    <div id="loader" class="loader"></div>
+
+    <div class="input-group">
+        <label>Tipus de sortida</label>
+        <select id="modeSelect">
+            <option value="parte">Parte Diari</option>
+            <option value="informe">Informe Tipificat DRAG</option>
+        </select>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" id="tabRedactor" onclick="switchTab('redactor')">✏ Redactor</button>
+        <button class="tab-btn"        id="tabDB"       onclick="switchTab('db')">🗄 BD</button>
+        <button class="tab-btn"        id="tabPenal"    onclick="switchTab('penal')">⚖ Penal</button>
+    </div>
+
+    <div class="tab-panel active" id="panelRedactor">
+        <div class="input-group">
+            <label>Text original (dictat o escrit)</label>
+            <textarea id="textOriginal" class="textarea-original"
+                      placeholder="Escriu aquí o utilitza el botó de veu..."></textarea>
+        </div>
+    </div>
+
+    <div class="tab-panel" id="panelDB">
+        <p style="color:#999;font-style:italic;padding:10px;">Processa un text primer per veure coincidències amb la base de dades.</p>
+    </div>
+
+    <div class="tab-panel" id="panelPenal">
+        <p style="color:#999;font-style:italic;padding:10px;">Processa un text per veure l'anàlisi penal.</p>
+    </div>
+
+    <div class="btn-row">
+        <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleWorkMode()">MODE TREBALL</button>
+        <button class="btn btn-translate" id="translateBtn" onclick="translateText()">⚡ PROCESSAR AMB IA</button>
+        <button class="btn btn-clear" onclick="clearAll()">✕ ESBORRAR</button>
+    </div>
+
+    <div class="input-group" id="technicalGroup" style="display:none;">
+        <label>Text tècnic generat</label>
+        <div id="textTechnicalPreview" style="display:none;padding:16px;border:2px solid #198754;border-radius:10px;background:#f8f9fa;font-family:'Courier New',monospace;font-size:14px;line-height:1.6;white-space:pre-wrap;margin-bottom:8px;"></div>
+        <textarea id="textTechnical" class="textarea-technical" readonly></textarea>
+    </div>
+
+    <div class="btn-group" id="addBtnGroup" style="display:none;">
+        <button class="btn btn-clear" onclick="addHeader()">▤ CAPÇALERA</button>
+        <button class="btn btn-clear" onclick="editTechnical()">✎ EDITAR</button>
+    </div>
+
+    <div class="btn-group" id="finalBtnGroup" style="display:none;">
+        <button class="btn btn-add" onclick="addRecord()">+ AFEGIR A BITÀCOLA</button>
+        <button class="btn btn-clear" onclick="clearAll()">✕ ESBORRAR</button>
+    </div>
+
+    <h2 style="margin:30px 0 15px;color:#1b263b;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #dee2e6;padding-bottom:10px;">Registres del Torn</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:12%;">Hora</th>
+                <th style="width:80%;">Descripció</th>
+                <th style="width:8%;text-align:center;">✕</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr><td colspan="3" class="empty">Cap registre encara.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="toggle-container">
+        <input type="checkbox" id="showTimeInExport">
+        <label for="showTimeInExport">Mostrar hores en exportar</label>
+    </div>
+
+    <button class="btn btn-copy" onclick="exportTXT()">▣ COPIAR BITÀCOLA COMPLETA</button>
+    <button class="btn btn-delete-all" onclick="deleteAll()">⊗ ESBORRAR TOT EL TORN</button>
+
+</div>
+
+<script>
+// ============================================================================
+// ESTAT GLOBAL
+// ============================================================================
+const BACKEND = "https://bitacola-backend.onrender.com";
+let db;
+let records      = [];
+let recognition  = null;
+let isRecording  = false;
+let isPatrolMode = false;
+let sessionToken = null;
+
+// ============================================================================
+// LOGIN
+// ============================================================================
+async function doLogin() {
+    const input    = document.getElementById("usernameInput");
+    const errorDiv = document.getElementById("loginError");
+    const btn      = document.getElementById("loginBtn");
+    const username = input.value.trim();
+
+    errorDiv.style.display = "none";
+    if (!username) {
+        errorDiv.textContent = "Introdueix el teu nom d'usuari";
+        errorDiv.style.display = "block";
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Verificant...";
+
+    try {
+        const r = await fetch(`${BACKEND}/api/login`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username })
+        });
+        const data = await r.json();
+
+        if (!data.ok) {
+            errorDiv.textContent = data.error || "Usuari no autoritzat";
+            errorDiv.style.display = "block";
+            btn.disabled = false;
+            btn.textContent = "ACCEDIR";
+            return;
+        }
+
+        // Sessió vàlida
+        sessionToken = data.token;
+        localStorage.setItem("session_token", data.token);
+        localStorage.setItem("display_name",  data.displayName);
+
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("displayNameLabel").textContent = data.displayName;
+        showStatus(`Benvingut/da, ${data.displayName}`, "success");
+
+    } catch (e) {
+        errorDiv.textContent = "Error de connexió. Comprova la xarxa.";
+        errorDiv.style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "ACCEDIR";
+    }
+}
+
+// ============================================================================
+// CHECK SESSION — restaurar sessió en recarregar pàgina
+// ============================================================================
+async function checkSession() {
+    const saved = localStorage.getItem("session_token");
+    if (!saved) return; // Mostrar login (per defecte visible)
+
+    try {
+        const r = await fetch(`${BACKEND}/api/check-session`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: saved })
+        });
+        const data = await r.json();
+
+        if (data.ok) {
+            sessionToken = saved;
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("displayNameLabel").textContent = data.displayName;
+        } else {
+            localStorage.removeItem("session_token");
+        }
+    } catch (e) {
+        // Si falla xarxa, deixem login visible per seguretat
+    }
+}
+
+// ============================================================================
+// LOGOUT
+// ============================================================================
+async function doLogout() {
+    if (sessionToken) {
+        fetch(`${BACKEND}/api/logout`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: sessionToken })
+        }).catch(()=>{});
+    }
+    sessionToken = null;
+    localStorage.removeItem("session_token");
+    localStorage.removeItem("display_name");
+    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("usernameInput").value = "";
+    document.getElementById("loginBtn").disabled = false;
+    document.getElementById("loginBtn").textContent = "ACCEDIR";
+}
+
+// ============================================================================
+// TABS
+// ============================================================================
+function switchTab(tab) {
+    ["redactor","db","penal"].forEach(t => {
+        const T = t.charAt(0).toUpperCase() + t.slice(1);
+        document.getElementById("panel"+T).classList.remove("active");
+        document.getElementById("tab"+T).classList.remove("active");
+    });
+    const T = tab.charAt(0).toUpperCase() + tab.slice(1);
+    document.getElementById("panel"+T).classList.add("active");
+    document.getElementById("tab"+T).classList.add("active");
+}
+
+// ============================================================================
+// INDEXEDDB
+// ============================================================================
+function initDB() {
+    const req = indexedDB.open("BitacolaDB", 1);
+    req.onerror    = () => console.error("❌ Error obrint IndexedDB");
+    req.onsuccess  = e => { db = e.target.result; loadFromDB(); };
+    req.onupgradeneeded = e => {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains("records"))
+            db.createObjectStore("records", { keyPath: "id" });
+    };
+}
+
+function saveToDB(record, cb) {
+    if (!db) return cb(false);
+    const req = db.transaction(["records"],"readwrite").objectStore("records").add(record);
+    req.onsuccess = () => cb(true);
+    req.onerror   = () => cb(false);
+}
+
+function loadFromDB() {
+    if (!db) return;
+    const req = db.transaction(["records"],"readonly").objectStore("records").getAll();
+    req.onsuccess = e => {
+        records = e.target.result || [];
+        records.sort((a,b) => b.id - a.id);
+        renderTable();
+    };
+}
+
+function deleteFromDB(id, cb) {
+    if (!db) return cb(false);
+    const req = db.transaction(["records"],"readwrite").objectStore("records").delete(id);
+    req.onsuccess = () => cb(true);
+    req.onerror   = () => cb(false);
+}
+
+function clearDB(cb) {
+    if (!db) return cb(false);
+    const req = db.transaction(["records"],"readwrite").objectStore("records").clear();
+    req.onsuccess = () => cb(true);
+    req.onerror   = () => cb(false);
+}
+
+// ============================================================================
+// MODE PATRULLA
+// ============================================================================
+function toggleWorkMode() {
+    isPatrolMode = !isPatrolMode;
+    const micBtn    = document.getElementById("micBtn");
+    const toggleBtn = document.getElementById("modeToggleBtn");
+    if (isPatrolMode) {
+        micBtn.style.display = "flex";
+        toggleBtn.classList.add("active");
+        initSpeechRecognition();
+        showStatus("Mode Patrulla activat", "success");
+    } else {
+        micBtn.style.display = "none";
+        toggleBtn.classList.remove("active");
+        if (recognition) { recognition.stop(); recognition = null; }
+        showStatus("Mode Oficina activat", "info");
+    }
+}
+
+// ============================================================================
+// VOZ
+// ============================================================================
+function initSpeechRecognition() {
+    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+        showStatus("El teu navegador no suporta reconeixement de veu", "error");
+        return;
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = "ca-ES";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = e => {
+        let t = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript + " ";
+        document.getElementById("textOriginal").value += t;
+    };
+    recognition.onerror = e => {
+        if (e.error !== "no-speech") showStatus("Error reconeixement: " + e.error, "error");
+    };
+    recognition.onend = () => { if (isRecording) recognition.start(); };
+}
+
+document.getElementById("micBtn").addEventListener("mousedown", startRecording);
+document.getElementById("micBtn").addEventListener("mouseup",   stopRecording);
+document.getElementById("micBtn").addEventListener("touchstart", e => { e.preventDefault(); startRecording(); });
+document.getElementById("micBtn").addEventListener("touchend",   e => { e.preventDefault(); stopRecording();  });
+
+function startRecording() {
+    if (!recognition) return;
+    isRecording = true;
+    recognition.start();
+    document.getElementById("micBtn").classList.add("recording");
+    document.getElementById("micText").textContent = "● GRAVANT...";
+}
+
+function stopRecording() {
+    if (!recognition) return;
+    isRecording = false;
+    recognition.stop();
+    document.getElementById("micBtn").classList.remove("recording");
+    document.getElementById("micText").textContent = "Mantenir premut per dictar";
+}
+
+// ============================================================================
+// TRANSLATE
+// ============================================================================
+async function translateText() {
+    if (window.__processing) return;
+    window.__processing = true;
+
+    if (!sessionToken) {
+        showStatus("Cal identificar-se primer", "error");
+        document.getElementById("loginScreen").style.display = "flex";
+        return;
+    }
+    const mode         = document.getElementById("modeSelect").value;
+    const originalText = document.getElementById("textOriginal").value.trim();
+    if (!originalText) { showStatus("Escriu o dicta alguna cosa primer", "error"); return; }
+
+    document.getElementById("loader").classList.add("show");
+    document.getElementById("translateBtn").disabled = true;
+    showStatus("Processant amb IA...", "info");
+
+    try {
+        const response = await fetch(`${BACKEND}/api/translate`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: originalText, mode, token: sessionToken }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                showStatus("Sessió caducada. Torna a identificar-te.", "warning");
+                doLogout();
+            } else {
+                showStatus(`Error: ${data.error}`, "error");
+            }
+            return;
+        }
+
+        const hora = new Date().toLocaleTimeString("ca-ES", { hour:"2-digit", minute:"2-digit" });
+        const textoDRAG = (data.texto_drag || data.translation || "").replace(/\[HORA\]/g, hora);
+
+        document.getElementById("textTechnical").value = textoDRAG;
+
+        const preview = document.getElementById("textTechnicalPreview");
+        if (data.anotaciones && data.anotaciones.length > 0) {
+            preview.innerHTML = pintarTextoAnotado(textoDRAG, data.anotaciones);
+            preview.style.display = "block";
+        } else {
+            preview.style.display = "none";
+        }
+
+        if (data.entidades) renderizarPanelDB(data.entidades);
+        analizarPenal(textoDRAG);
+
+        document.getElementById("technicalGroup").style.display = "block";
+        document.getElementById("addBtnGroup").style.display    = "grid";
+        document.getElementById("finalBtnGroup").style.display  = "grid";
+
+        showStatus(`Anàlisi completada en ${data.ms || "—"}ms`, "success");
+
+    } catch (e) {
+        showStatus("Error en l'anàlisi: " + e.message, "error");
+    } finally {
+        window.__processing = false;
+        document.getElementById("loader").classList.remove("show");
+        document.getElementById("translateBtn").disabled = false;
+    }
+}
+
+// ============================================================================
+// ANOTACIONS
+// ============================================================================
+function pintarTextoAnotado(texto, anotaciones) {
+    if (!anotaciones || !anotaciones.length) return escapeHtml(texto);
+    const sorted = [...anotaciones].sort((a,b) => b.start - a.start);
+    let html = escapeHtml(texto);
+    for (const ann of sorted) {
+        if (ann.match === "SIN_COINCIDENCIA") continue;
+        const cls    = ann.match === "EXACTO" ? "entity-exact" : "entity-partial";
+        const color  = ann.match === "EXACTO" ? "#cce5ff" : "#fff3cd";
+        const border = ann.match === "EXACTO" ? "#0066cc" : "#e6a817";
+        const tip    = `${ann.match === "EXACTO" ? "✓" : "⚠"} ${ann.texto_enriquecido||ann.type} | ${ann.historial_count||0} actuacions`;
+        html = html.substring(0,ann.start)
+            + `<span class="${cls}" title="${tip}" style="background:${color};border-bottom:2px solid ${border};padding:1px 3px;border-radius:2px;cursor:pointer;">${html.substring(ann.start,ann.end)}</span>`
+            + html.substring(ann.end);
+    }
+    return html;
+}
+
+function escapeHtml(t) {
+    return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ============================================================================
+// PANEL BD
+// ============================================================================
+function renderizarPanelDB(entidades) {
+    const panel = document.getElementById("panelDB");
+    panel.innerHTML = "";
+    const matches = [
+        ...(entidades.personas||[]),
+        ...(entidades.vehiculos||[]),
+        ...(entidades.ubicaciones||[]),
+    ].filter(m => m.db_record && m.match_type !== "SIN_COINCIDENCIA");
+
+    if (!matches.length) {
+        panel.innerHTML = "<p style='color:#666;padding:10px;'>✔ No consten coincidències a la base de dades.</p>";
+        return;
+    }
+
+    matches.forEach(m => {
+        const rec   = m.db_record;
+        const enr   = m.enrichment || {};
+        const conf  = Math.round((m.confidence||0)*100);
+        const apar  = enr.apariciones_previas || 0;
+        const risc  = apar >= 5 ? "ALTO" : apar >= 2 ? "MEDIO" : "BAJO";
+        const rcol  = {ALTO:"#dc3545",MEDIO:"#ffc107",BAJO:"#198754"}[risc];
+        const titol = rec.nombre ? `${rec.nombre} ${rec.apellidos||""}`.trim() : rec.plate || rec.canonical_name || "—";
+        const dades = Object.entries(rec).filter(([k,v])=>v&&!["nombre","apellidos"].includes(k))
+            .map(([k,v])=>`<div><strong>${k}:</strong> ${v}</div>`).join("");
+        const rols  = (enr.roles_previos||[]).join(", ");
+        const vehs  = (enr.vehiculos_relacionados||[]).map(v=>v.plate).join(", ");
+
+        const card = document.createElement("div");
+        card.style.cssText = "background:white;border:2px solid #dee2e6;border-radius:10px;padding:16px;margin-bottom:12px;";
+        card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div>
+                    <strong style="font-size:15px;color:#1b263b;">${titol}</strong>
+                    <div style="font-size:12px;color:#778da9;">${m.match_type} · Confiança ${conf}%</div>
+                </div>
+                <div style="background:${rcol};color:white;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;">${risc}</div>
+            </div>
+            <div style="background:#f8f9fa;padding:10px;border-radius:6px;font-size:13px;margin-bottom:10px;">${dades}</div>
+            ${apar>0?`<div style="font-size:13px;color:#495057;border-top:1px solid #dee2e6;padding-top:10px;">
+                📋 <strong>${apar}</strong> aparicions prèvies
+                ${rols?`· Rols: ${rols}`:""}${vehs?`· Vehicles: ${vehs}`:""}
+            </div>`:""}`;
+        panel.appendChild(card);
+    });
+}
+
+// ============================================================================
+// PANEL PENAL
+// ============================================================================
+async function analizarPenal(textoDRAG) {
+    const panel = document.getElementById("panelPenal");
+    if (!panel) return;
+    panel.innerHTML = "<p style='color:#888;padding:10px;'>⏳ Analitzant tipificació penal...</p>";
+    try {
+        const r = await fetch("https://penal-backend.onrender.com/api/v1/penal/analyze", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ texto: textoDRAG }),
+        });
+        if (!r.ok) { panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ Error en el servei penal.</p>"; return; }
+        renderizarPanelPenal(await r.json());
+    } catch (e) {
+        panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ No s'ha pogut connectar amb el tipificador penal.</p>";
+    }
+}
+
+function renderizarPanelPenal(penal) {
+    const panel = document.getElementById("panelPenal");
+    if (!panel) return;
+    if (!penal.is_penal) {
+        panel.innerHTML = `<div style="background:#d4edda;border:1px solid #c3e6cb;border-radius:8px;padding:16px;color:#155724;">
+            <strong>✔ Sense indicis penals</strong>
+            <div style="font-size:12px;margin-top:4px;color:#555;">Score gate: ${(penal.score_gate||0).toFixed(4)}</div>
+        </div>`;
+        return;
+    }
+    const resultats  = penal.resultats || penal.resultados || [];
+    const modul      = penal.modulo || "desconegut";
+    const NOMS = { patrimoni:"Patrimoni",patrimonio:"Patrimoni",vida_integridad:"Vida i Integritat",
+        libertad:"Llibertat",orden_publico:"Ordre Públic",seguridad_colectiva:"Seguretat Col·lectiva",
+        Indemnidad_sexual:"Indemnitat Sexual",delitos_funcionarios:"Funcionaris",medio_ambiente:"Medi Ambient" };
+    const getColor = s => s>=0.9?"#dc3545":s>=0.75?"#e67e22":s>=0.6?"#f39c12":"#f1c40f";
+
+    let html = `<div style="margin-bottom:12px;padding:10px;background:#fff3cd;border-radius:8px;border:1px solid #ffc107;">
+        <strong style="color:#856404;">⚖ Possible infracció penal detectada</strong>
+        <div style="font-size:12px;color:#666;margin-top:4px;">
+            Mòdul: <strong>${NOMS[modul]||modul}</strong> · Confiança router: ${((penal.confidence_router||0)*100).toFixed(0)}%
+        </div>
+    </div>`;
+
+    resultats.forEach(r => {
+        const color = getColor(r.score);
+        const pct   = Math.round(r.score*100);
+        const nom   = r.delito.replace(/^[^-]+-/,"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+        html += `<div style="background:white;border:2px solid ${color};border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <strong style="color:#1b263b;font-size:14px;">${nom}</strong>
+                <div style="font-size:11px;color:#778da9;margin-top:2px;">${r.delito}</div>
+            </div>
+            <div style="background:${color};color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;min-width:54px;text-align:center;">${pct}%</div>
+        </div>`;
+    });
+
+    panel.innerHTML = html;
+}
+
+// ============================================================================
+// EDITAR / CAPÇALERA / REGISTRES
+// ============================================================================
+function editTechnical() {
+    const ta = document.getElementById("textTechnical");
+    ta.readOnly = !ta.readOnly;
+    if (!ta.readOnly) { ta.focus(); showStatus("Mode edició activat","info"); }
+}
+
+function addHeader() {
+    const ta  = document.getElementById("textTechnical");
+    const now = new Date();
+    ta.value    = `DATA: ${now.toLocaleDateString("ca-ES",{year:"numeric",month:"2-digit",day:"2-digit"})}\nHORA: ${now.toLocaleTimeString("ca-ES",{hour:"2-digit",minute:"2-digit"})}\n\n${ta.value.trim()}`;
+    ta.readOnly = false; ta.focus();
+    showStatus("Capçalera afegida","info");
+}
+
+function addRecord() {
+    const text = document.getElementById("textTechnical").value.trim();
+    const mode = document.getElementById("modeSelect").value;
+    if (!text) { showStatus("No hi ha text tècnic per afegir","error"); return; }
+    const now  = new Date();
+    const time = now.toLocaleTimeString("ca-ES",{hour:"2-digit",minute:"2-digit"});
+    const rec  = { id:Date.now(), time, description:text, mode };
+    saveToDB(rec, ok => {
+        if (ok) { records.unshift(rec); renderTable(); clearAll(); showStatus("Registre afegit","success"); }
+        else    showStatus("Error guardant registre","error");
+    });
+}
+
+function deleteRecord(id) {
+    if (!confirm("Eliminar aquest registre?")) return;
+    deleteFromDB(id, ok => {
+        if (ok) { records = records.filter(r=>r.id!==id); renderTable(); showStatus("Registre eliminat","info"); }
+        else    showStatus("Error eliminant registre","error");
+    });
+}
+
+function deleteAll() {
+    if (!records.length) { showStatus("No hi ha registres","error"); return; }
+    if (!confirm("⚠️ Segur que vols esborrar TOTS els registres del torn?")) return;
+    clearDB(ok => {
+        if (ok) { records=[]; renderTable(); showStatus("Tot esborrat","info"); }
+        else    showStatus("Error esborrant","error");
+    });
+}
+
+// ============================================================================
+// RENDER TAULA
+// ============================================================================
+function renderTable() {
+    const tbody = document.getElementById("tableBody");
+    if (!records.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="empty">Cap registre encara.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = records.map(r => `
+        <tr>
+            <td><strong>${r.time}</strong></td>
+            <td>${r.mode==="informe"?"■":"▪"} ${r.description}</td>
+            <td style="text-align:center;"><button class="delete-btn" onclick="deleteRecord(${r.id})">✕</button></td>
+        </tr>`).join("");
+}
+
+// ============================================================================
+// EXPORTAR TXT
+// ============================================================================
+function exportTXT() {
+    if (!records.length) { showStatus("No hi ha actuacions guardades","error"); return; }
+    const showTime = document.getElementById("showTimeInExport").checked;
+    let txt = "===============================\nBITÀCOLA DE SERVEI\n===============================\n\n";
+    records.forEach((r,i) => {
+        txt += `ACTUACIÓ ${records.length-i}\n-------------------------------\n`;
+        if (showTime) txt += `Hora: ${r.time}\n`;
+        txt += `Tipus: ${r.mode==="informe"?"Informe tipificat":"Parte diari"}\n\n${r.description}\n\n`;
+    });
+    navigator.clipboard.writeText(txt)
+        .then(()  => showStatus("Bitàcola copiada","success"))
+        .catch(()  => showStatus("Error copiant","error"));
+}
+
+// ============================================================================
+// CLEAR / STATUS
+// ============================================================================
+function clearAll() {
+    document.getElementById("textOriginal").value  = "";
+    document.getElementById("textTechnical").value = "";
+    document.getElementById("textTechnicalPreview").style.display = "none";
+    document.getElementById("technicalGroup").style.display = "none";
+    document.getElementById("addBtnGroup").style.display    = "none";
+    document.getElementById("finalBtnGroup").style.display  = "none";
+    document.getElementById("panelDB").innerHTML    = "<p style='color:#999;font-style:italic;padding:10px;'>Processa un text primer per veure coincidències.</p>";
+    document.getElementById("panelPenal").innerHTML = "<p style='color:#999;font-style:italic;padding:10px;'>Processa un text per veure l'anàlisi penal.</p>";
+    switchTab("redactor");
+}
+
+function showStatus(msg, type) {
+    const el = document.getElementById("status");
+    el.textContent = msg;
+    el.className   = `status show ${type}`;
+    setTimeout(() => el.classList.remove("show"), 4000);
+}
+
+window.addEventListener("focus", () => { if(db) loadFromDB(); });
+
+// ============================================================================
+// INIT
+// ============================================================================
+checkSession();
+initDB();
+</script>
+</body>
+</html>
