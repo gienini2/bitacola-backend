@@ -704,16 +704,22 @@ async function doLogout() {
 // TABS
 // ============================================================================
 function switchTab(tab) {
-    ["redactor","db","penal"].forEach(t => {
-        const T = t.charAt(0).toUpperCase() + t.slice(1);
-        document.getElementById("panel"+T).classList.remove("active");
-        document.getElementById("tab"+T).classList.remove("active");
-    });
-    const T = tab.charAt(0).toUpperCase() + tab.slice(1);
-    document.getElementById("panel"+T).classList.add("active");
-    document.getElementById("tab"+T).classList.add("active");
-}
+    const map = {
+        redactor: "Redactor",
+        db: "DB",
+        penal: "Penal"
+    };
 
+    ["redactor","db","penal"].forEach(t => {
+        const T = map[t];
+        document.getElementById("panel"+T)?.classList.remove("active");
+        document.getElementById("tab"+T)?.classList.remove("active");
+    });
+
+    const T = map[tab];
+    document.getElementById("panel"+T)?.classList.add("active");
+    document.getElementById("tab"+T)?.classList.add("active");
+}
 // ============================================================================
 // INDEXEDDB
 // ============================================================================
