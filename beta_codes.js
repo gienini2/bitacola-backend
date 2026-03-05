@@ -1,7 +1,7 @@
-// beta_codes.js - Sistema de códigos beta BETA-1009-A...H
+// beta_codes.js - Versión ES Modules
 
-// Lista blanca de códigos autorizados
-const BETA_CODES = new Set([
+// Lista blanca de códigos beta autorizados
+export const BETA_CODES = new Set([
   'BETA-1009-A',
   'BETA-1009-B', 
   'BETA-1009-C',
@@ -14,11 +14,11 @@ const BETA_CODES = new Set([
 
 // Mapa para almacenar qué código tiene cada usuario
 // { "user_id_generado": "BETA-1009-A" }
-const userToBetaCode = new Map();
+export const userToBetaCode = new Map();
 
 // Mapa para límites de uso por código
 // { "BETA-1009-A": { parte: 0, informe: 0, maxParte: 100, maxInforme: 10 } }
-const betaUsage = new Map();
+export const betaUsage = new Map();
 
 // Inicializar límites para cada código
 BETA_CODES.forEach(code => {
@@ -30,7 +30,6 @@ BETA_CODES.forEach(code => {
     lastReset: new Date().toISOString()
   });
 });
-
 module.exports = {
   BETA_CODES,
   userToBetaCode,
