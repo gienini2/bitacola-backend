@@ -49,26 +49,122 @@ async function pingSherlock() {
 
 setTimeout(pingSherlock, 30_000);
 setInterval(pingSherlock, 10 * 60 * 1000);
-
 // ============================================================================
-// CONTROL D'ACCÉS BETA
+// SISTEMA BETA - CÓDIGOS BETA-1009-A...H
 // ============================================================================
 
-const BETA_LIMITS = { parte: 100, informe: 10 };
-const userUsage   = {};
+import { BETA_CODES, userToBetaCode, betaUsage } from './beta_codes.js';
 
-function consumirUso(userId, mode) {
-  if (!userUsage[userId]) userUsage[userId] = { parte: 0, informe: 0 };
-  const key = mode === "informe" ? "informe" : "parte";
-  if (userUsage[userId][key] >= BETA_LIMITS[key]) return false;
-  userUsage[userId][key]++;
-  return true;
-}
+// Endpoint para verificar/registrar código beta
+app.post("/api/verify-beta-code", (req, res) => {
+  const { beta_code, user_id } = req.body;
 
+  if (!beta_code || !user_id) {
+    return res.status(400).json({ 
+      valid: false, 
+      error: "Falta código beta o user_id" 
+    });
+  }
+
+  // Verificar si el código es válido
+  if (!BETA_CODES.has(beta_code)) {
+    return res.status(403).json({ 
+      valid: false, 
+      error: "Código beta inválido" 
+    });
+  }
+
+  // Verificar si este código ya está siendo usado por otro usuario
+  let usuarioActual = null;
+  for (let [uid, code] of userToBetaCode.entries()) {
+    if (code === beta_code) {
+      usuarioActual = uid;
+      break;
+    }
+  }
+
+  if (usuarioActual && usuarioActual !== user_id) {
+    return res.status(403).json({ 
+      valid: false, 
+      error: "Este código beta ya está siendo utilizado por otro agente" 
+    });
+  }
+
+  // Registrar el código para este usuario
+  userToBetaCode.set(user_id, beta_code);
+  
+  // Inicializar uso si no existe
+  if (!betaUsage.has(beta_code)) {
+    betaUsage.set(beta_code, {
+      parte: 0,
+      informe: 0,
+      maxParte: 100,
+      maxInforme: 10
+    });
+  }
+
+  const usage = betaUsage.get(beta_code);
+
+  res.json({ 
+    valid: true,
+    beta_code: beta_code,
+    usage: {
+      parte: usage.parte,
+      informe: usage.informe,
+      maxParte: usage.maxParte,
+      maxInforme: usage.maxInforme
+    }
+  });
+});
+
+// Endpoint modificado de check-beta
 app.post("/api/check-beta", (req, res) => {
   const { user_id } = req.body;
-  res.json({ has_access: !!user_id });
+
+  if (!user_id) {
+    return res.json({ has_access: false });
+  }
+
+  // Verificar si el usuario tiene un código beta registrado
+  const beta_code = userToBetaCode.get(user_id);
+  
+  if (!beta_code) {
+    return res.json({ 
+      has_access: false,
+      needs_code: true 
+    });
+  }
+
+  const usage = betaUsage.get(beta_code);
+
+  res.json({ 
+    has_access: true,
+    beta_code: beta_code,
+    usage: {
+      parte: usage.parte,
+      informe: usage.informe,
+      maxParte: usage.maxParte,
+      maxInforme: usage.maxInforme
+    }
+  });
 });
+
+// Endpoint para consumir uso (llamado desde /api/translate)
+function consumirUso(userId, mode) {
+  const beta_code = userToBetaCode.get(userId);
+  if (!beta_code) return false;
+
+  const usage = betaUsage.get(beta_code);
+  if (!usage) return false;
+
+  const key = mode === "informe" ? "informe" : "parte";
+  const maxKey = mode === "informe" ? "maxInforme" : "maxParte";
+
+  if (usage[key] >= usage[maxKey]) return false;
+  
+  usage[key]++;
+  return true;
+}
 
 // ============================================================================
 // ENDPOINT PRINCIPAL — proxy cap a Sherlock amb retry
