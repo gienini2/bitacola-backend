@@ -6,7 +6,71 @@
     <title>Bitàcola Agent 1009</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        <!-- AÑADE ESTO AL PRINCIPIO DEL BODY, ANTES DEL CONTAINER PRINCIPAL -->
+        <div id="betaLoginScreen" style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+        ">
+          <div style="
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          ">
+            <h2 style="color: #1b263b; margin-bottom: 20px; text-align: center;">
+              🔐 Acceso Restringido
+            </h2>
+            <p style="color: #666; margin-bottom: 25px; text-align: center; font-size: 14px;">
+              Introduce tu código beta para acceder al sistema
+            </p>
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; color: #415a77; font-weight: 600;">
+                Código Beta:
+              </label>
+              <input 
+                type="text" 
+                id="betaCodeInput"
+                placeholder="Ej: BETA-1009-A"
+                style="
+                  width: 100%;
+                  padding: 15px;
+                  border: 2px solid #dee2e6;
+                  border-radius: 10px;
+                  font-size: 16px;
+                  text-transform: uppercase;
+                "
+              >
+            </div>
+            <button 
+              onclick="verifyBetaCode()"
+              style="
+                width: 100%;
+                padding: 16px;
+                background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                margin-bottom: 15px;
+              "
+            >
+              ACCEDER
+            </button>
+            <div id="betaError" style="color: #dc3545; font-size: 13px; text-align: center; display: none;"></div>
+          </div>
+        </div>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
@@ -673,41 +737,104 @@ function stopRecording() {
     logUsage("voice_stop");
 }
 
-// ============================================================================
-// BETA ACCESS
-// ============================================================================
-async function checkBetaAccess() {
-    let userId = localStorage.getItem("user_id");
-    if (!userId) {
-        userId = "user_" + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem("user_id", userId);
+async function verifyBetaCode() {
+  const betaCode = document.getElementById('betaCodeInput').value.trim().toUpperCase();
+  const errorDiv = document.getElementById('betaError');
+  
+  if (!betaCode) {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = 'Por favor, introduce un código beta';
+    return;
+  }
+
+  let userId = localStorage.getItem("user_id");
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("user_id", userId);
+  }
+
+  try {
+    const response = await fetch("https://bitacola-backend.onrender.com/api/verify-beta-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        beta_code: betaCode,
+        user_id: userId
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.valid) {
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = data.error || 'Código inválido';
+      return;
     }
-    try {
-        const r = await fetch("https://bitacola-backend.onrender.com/api/check-beta", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId })
-        });
-        const data = await r.json();
-        if (!data.has_access) {
-            document.body.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1e3c72,#2a5298);font-family:-apple-system,sans-serif;padding:20px;">
-                    <div style="background:white;color:#2a5298;padding:40px;border-radius:20px;max-width:500px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
-                        <h1 style="font-size:48px;margin-bottom:20px;">⊘</h1>
-                        <h2 style="margin-bottom:15px;">Accés Restringit</h2>
-                        <p style="color:#666;line-height:1.6;margin-bottom:25px;">
-                            Aquesta aplicació està en fase beta privada.<br>
-                            ID: <code style="background:#f0f7ff;padding:2px 8px;border-radius:4px;">${userId}</code>
-                        </p>
-                        <p style="color:#999;font-size:14px;">Contacta amb l'administrador per obtenir accés.</p>
-                    </div>
-                </div>`;
-        }
-    } catch (e) {
-        console.error("Error verificant accés:", e);
-    }
+
+    // Código válido - ocultar pantalla de login
+    document.getElementById('betaLoginScreen').style.display = 'none';
+    
+    // Guardar información del código
+    localStorage.setItem('beta_code', data.beta_code);
+    
+    // Mostrar mensaje de bienvenida
+    showStatus(`Acceso concedido. Código: ${data.beta_code}`, 'success');
+
+  } catch (error) {
+    console.error('Error verificando código:', error);
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = 'Error al verificar el código. Inténtalo de nuevo.';
+  }
 }
 
+// Modificar checkBetaAccess() para mostrar login si no hay código
+async function checkBetaAccess() {
+  let userId = localStorage.getItem("user_id");
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("user_id", userId);
+  }
+
+  // Verificar si ya tiene un código válido
+  const betaCode = localStorage.getItem('beta_code');
+  
+  try {
+    const response = await fetch("https://bitacola-backend.onrender.com/api/check-beta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId })
+    });
+
+    const data = await response.json();
+
+    if (!data.has_access) {
+      if (data.needs_code) {
+        // Mostrar pantalla de login beta
+        document.getElementById('betaLoginScreen').style.display = 'flex';
+      } else {
+        // Bloquear acceso (código inválido o sin acceso)
+        document.body.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1e3c72,#2a5298);padding:20px;">
+            <div style="background:white;color:#2a5298;padding:40px;border-radius:20px;max-width:500px;text-align:center;">
+              <h1 style="font-size:48px;margin-bottom:20px;">⊘</h1>
+              <h2 style="margin-bottom:15px;">Acceso Restringido</h2>
+              <p style="color:#666;line-height:1.6;margin-bottom:25px;">
+                No tienes acceso a este sistema.<br>
+                Contacta con el administrador.
+              </p>
+            </div>
+          </div>`;
+      }
+      return;
+    }
+
+    // Tiene acceso - ocultar login si estaba visible
+    document.getElementById('betaLoginScreen').style.display = 'none';
+    
+  } catch (error) {
+    console.error("Error verificando acceso:", error);
+  }
+}
 // ============================================================================
 // TRANSLATE — crida a Bitàcola → Sherlock → Claude
 // ============================================================================
