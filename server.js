@@ -121,8 +121,8 @@ app.post("/api/translate", async (req, res) => {
   }
 
   const session = activeSessions.get(token);
-  const MAX_RETRIES = 1;
-  const RETRY_DELAY = 4000;
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 8000;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
