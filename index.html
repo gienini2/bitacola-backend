@@ -973,19 +973,34 @@ function renderizarPanelDB(entidades) {
 // ============================================================================
 // PANEL PENAL
 // ============================================================================
-async function analizarPenal(textOriginal) {
+async function analizarPenal(textoParam) {
+    const panelPenal = document.getElementById("panelPenal");
+    if (!panelPenal) return;
 
-    const response = await fetch(
-        "https://penal-backend.onrender.com/api/v1/penal/analyze",
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                texto_coloquial: textoOriginal
-            })
+    panelPenal.innerHTML = "<p style='color:#888;padding:10px;'>⏳ Analitzant tipificació penal...</p>";
+
+    try {
+        const response = await fetch(
+            "https://penal-backend.onrender.com/api/v1/penal/analyze",
+            {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ texto_coloquial: textoParam }),
+            }
+        );
+
+        if (!response.ok) {
+            panelPenal.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ Error en el servei penal.</p>";
+            return;
         }
-    );
 
+        const penal = await response.json();
+        renderizarPanelPenal(penal);
+
+    } catch (e) {
+        console.error("Error penal:", e);
+        panelPenal.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ No s'ha pogut connectar amb el tipificador penal.</p>";
+    }
 }
 
 function renderizarPanelPenal(penal) {
