@@ -980,7 +980,7 @@ async function analizarPenal(textoDRAG) {
     if (!panel) return;
     panel.innerHTML = "<p style='color:#888;padding:10px;'>⏳ Analitzant tipificació penal...</p>";
     try {
-        const r = await fetch("https://penal-backend.onrender.com/api/v1/penal/analyze", {
+        const r = await fetch("https://gienini2.duckdns.org/api/v1/penal/analyze", {
             method:"POST", headers:{"Content-Type":"application/json"},
             body: JSON.stringify({ texto: textoDRAG }),
         });
