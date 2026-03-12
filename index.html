@@ -984,7 +984,7 @@ async function analizarPenal(textoDRAG) {
     try {
         const r = await fetch("https://gienini2.duckdns.org/api/v1/penal/analyze", {
             method:"POST", headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({ texto: textoDRAG }),
+            body: JSON.stringify({ text: textoDRAG }),
         });
         if (!r.ok) { panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ Error en el servei penal.</p>"; return; }
         renderizarPanelPenal(await r.json());
