@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-    <link rel="icon" href="data:,">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bitàcola Agent 1009</title>
@@ -544,7 +543,7 @@
     </div>
 
     <div class="btn-row">
-        <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleWorkMode()">MODE<br>TREBALL</button>
+        <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleWorkMode()">MODE TREBALL</button>
         <button class="btn btn-translate" id="translateBtn" onclick="translateText()">⚡ PROCESSAR AMB IA</button>
         <button class="btn btn-clear" onclick="clearAll()">✕ ESBORRAR</button>
     </div>
@@ -594,7 +593,7 @@
 // ============================================================================
 // ESTAT GLOBAL
 // ============================================================================
-const BACKEND = "https://bitacola-backend.onrender.com";
+const BACKEND = "http://204.168.146.236:10000";
 let db;
 let records      = [];
 let recognition  = null;
@@ -705,25 +704,21 @@ async function doLogout() {
 // TABS
 // ============================================================================
 function switchTab(tab) {
-    const tabs   = ["redactor", "db", "penal"];
-    const panelMap = {
-        redactor: "panelRedactor",
-        db:       "panelDB",
-        penal:    "panelPenal",
-    };
-    const tabMap = {
-        redactor: "tabRedactor",
-        db:       "tabDB",
-        penal:    "tabPenal",
+    const map = {
+        redactor: "Redactor",
+        db: "DB",
+        penal: "Penal"
     };
 
-    tabs.forEach(t => {
-        document.getElementById(panelMap[t])?.classList.remove("active");
-        document.getElementById(tabMap[t])?.classList.remove("active");
+    ["redactor","db","penal"].forEach(t => {
+        const T = map[t];
+        document.getElementById("panel"+T)?.classList.remove("active");
+        document.getElementById("tab"+T)?.classList.remove("active");
     });
 
-    document.getElementById(panelMap[tab])?.classList.add("active");
-    document.getElementById(tabMap[tab])?.classList.add("active");
+    const T = map[tab];
+    document.getElementById("panel"+T)?.classList.add("active");
+    document.getElementById("tab"+T)?.classList.add("active");
 }
 // ============================================================================
 // INDEXEDDB
@@ -878,9 +873,16 @@ async function translateText() {
 
         document.getElementById("textTechnical").value = textoDRAG;
 
-        document.getElementById("textTechnicalPreview").style.display = "none";
+        const preview = document.getElementById("textTechnicalPreview");
+        if (data.anotaciones && data.anotaciones.length > 0) {
+            preview.innerHTML = pintarTextoAnotado(textoDRAG, data.anotaciones);
+            preview.style.display = "block";
+        } else {
+            preview.style.display = "none";
+        }
+
         if (data.entidades) renderizarPanelDB(data.entidades);
-        analizarPenal(originalText);
+        analizarPenal(textoDRAG);
 
         document.getElementById("technicalGroup").style.display = "block";
         document.getElementById("addBtnGroup").style.display    = "grid";
@@ -973,33 +975,19 @@ function renderizarPanelDB(entidades) {
 // ============================================================================
 // PANEL PENAL
 // ============================================================================
-async function analizarPenal(textoParam) {
-    const panelPenal = document.getElementById("panelPenal");
-    if (!panelPenal) return;
-
-    panelPenal.innerHTML = "<p style='color:#888;padding:10px;'>⏳ Analitzant tipificació penal...</p>";
-
+async function analizarPenal(textoDRAG) {
+    const panel = document.getElementById("panelPenal");
+    if (!panel) return;
+    panel.innerHTML = "<p style='color:#888;padding:10px;'>⏳ Analitzant tipificació penal...</p>";
     try {
-        const response = await fetch(
-            "https://penal-backend.onrender.com/api/v1/penal/analyze",
-            {
-                method:  "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ texto_coloquial: textoParam }),
-            }
-        );
-
-        if (!response.ok) {
-            panelPenal.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ Error en el servei penal.</p>";
-            return;
-        }
-
-        const penal = await response.json();
-        renderizarPanelPenal(penal);
-
+        const r = await fetch("https://penal-backend.onrender.com/api/v1/penal/analyze", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ texto: textoDRAG }),
+        });
+        if (!r.ok) { panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ Error en el servei penal.</p>"; return; }
+        renderizarPanelPenal(await r.json());
     } catch (e) {
-        console.error("Error penal:", e);
-        panelPenal.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ No s'ha pogut connectar amb el tipificador penal.</p>";
+        panel.innerHTML = "<p style='color:#dc3545;padding:10px;'>⚠ No s'ha pogut connectar amb el tipificador penal.</p>";
     }
 }
 
