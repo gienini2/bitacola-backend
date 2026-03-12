@@ -877,8 +877,10 @@ async function translateText() {
         if (data.anotaciones && data.anotaciones.length > 0) {
             preview.innerHTML = pintarTextoAnotado(textoDRAG, data.anotaciones);
             preview.style.display = "block";
+            document.getElementById("textTechnical").style.display = "none";
         } else {
             preview.style.display = "none";
+            document.getElementById("textTechnical").style.display = "block";
         }
 
         if (data.entidades) renderizarPanelDB(data.entidades);
