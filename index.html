@@ -884,7 +884,7 @@ async function translateText() {
         }
 
         if (data.entidades) renderizarPanelDB(data.entidades);
-        analizarPenal(textoDRAG);
+        analizarPenal(originalText);
 
         document.getElementById("technicalGroup").style.display = "block";
         document.getElementById("addBtnGroup").style.display    = "grid";
