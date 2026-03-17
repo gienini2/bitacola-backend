@@ -1010,7 +1010,8 @@ async function analizarPenal(textoDRAG) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    texto_coloquial: textoDRAG
+                    texto_coloquial: textoDRAG,
+                    token: sessionToken
                 })
             }
         );
