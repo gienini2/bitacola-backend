@@ -17,7 +17,7 @@ export const AUTHORIZED_USERS = new Map([
   ['beta-1009-m', { displayName: 'GM la Pobla de Montornes 102' }],
   ['beta-1009-n', { displayName: 'Inspector Abraham Albaladejo' }],
   ['beta-1009-o', { displayName: 'Agent Beta-1009-H' }],
-  ['beta-1009-p', { displayName: 'Agent Beta-1009-H' }],
+  ['beta-1009-p', { displayName: 'Albert Costa' }],
   ['beta-1009-q', { displayName: 'Agent Beta-1009-H' }],
   ['beta-1009-r', { displayName: 'Agent Beta-1009-H' }],
   ['beta-1009-s', { displayName: 'Agent Beta-1009-H' }],
